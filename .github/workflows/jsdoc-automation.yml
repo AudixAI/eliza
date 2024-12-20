@@ -1,25 +1,30 @@
-name: Update Config and Run
+name: JSDoc Automation
 
 on:
   workflow_dispatch:
     inputs:
       pull_number:
-        description: 'Pull Request Number'
+        description: 'Pull Request Number (optional - if not provided, scans entire directory)'
         required: false
+        type: string
       root_directory:
-        description: 'Root Directory'
+        description: 'Directory to scan (relative to repository root, e.g., packages/core/src)'
         required: true
-        default: 'packages/core/src'
+        default: 'packages/core/src/test_resources'
+        type: string
       excluded_directories:
-        description: 'Excluded Directories (comma-separated)'
+        description: 'Directories to exclude from scanning (comma-separated, relative to root_directory)'
         required: true
-        default: 'node_modules'
+        default: 'node_modules,dist,test'
+        type: string
       reviewers:
-        description: 'Pull Request Reviewers (comma-separated)'
+        description: 'Pull Request Reviewers (comma-separated GitHub usernames)'
         required: true
+        default: ''
+        type: string
 
 jobs:
-  update-and-run:
+  generate-docs:
     runs-on: ubuntu-latest
 
     env:
@@ -29,47 +34,35 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better git operations
+
+      - name: Validate inputs
+        run: |
+          # Check if root_directory starts with a slash
+          if [[ "${{ github.event.inputs.root_directory }}" == /* ]]; then
+            echo "Error: root_directory should be relative to repository root (no leading slash)"
+            exit 1
+          fi
+
+          # Check if root_directory exists
+          if [ ! -d "${{ github.event.inputs.root_directory }}" ]; then
+            echo "Error: Directory ${{ github.event.inputs.root_directory }} not found"
+            exit 1
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '23.3.0'  # Updated to match required version
+          node-version: '23'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-          run_install: false  # We'll run install separately with specific flags
 
-      # Clean install without frozen lockfile to update dependencies
       - name: Install dependencies
-        run: |
-          pnpm install --no-frozen-lockfile
-          pnpm up  # Update all dependencies to their latest allowed versions
+        run: pnpm install
 
-      - name: Update config file
-        run: |
-          # Convert comma-separated excluded directories to JSON array
-            EXCLUDED_DIRS_JSON=$(echo "${{ github.event.inputs.excluded_directories }}" | \
-              jq -R 'split(",") | map(sub("^\\s+|\\s+$"; ""))')
-
-          # Convert comma-separated reviewers to JSON array
-          REVIEWERS_JSON=$(echo "${{ github.event.inputs.reviewers }}" | \
-            jq -R 'split(",") | map(sub("^\\s+|\\s+$"; ""))')
-
-          # Update config.json using jq
-          jq --arg pn "${{ github.event.inputs.pull_number }}" \
-             --arg rd "${{ github.event.inputs.root_directory }}" \
-             --argjson ed "${EXCLUDED_DIRS_JSON}" \
-             --argjson pr "${REVIEWERS_JSON}" \
-             '.repository.pullNumber = if $pn == "" then null else ($pn | tonumber) end |
-              .rootDirectory = $rd |
-              .excludedDirectories = $ed |
-              .pullRequestReviewers = $pr' \
-             packages/jsdoc-automation/src/config/config.json > temp.json && mv temp.json packages/jsdoc-automation/src/config/config.json
-
-      - name: Run start command
-        run: cd packages/jsdoc-automation && pnpm start  # Added cd to correct directory
-        env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GH_PAT }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Run documentation generator
+        run: pnpm start
