@@ -69,3 +69,8 @@ jobs:
       - name: Run documentation generator
         working-directory: packages/jsdoc-automation
         run: pnpm start
+        env:
+          INPUT_ROOT_DIRECTORY: ${{ inputs.root_directory }}
+          INPUT_PULL_NUMBER: ${{ inputs.pull_number }}
+          INPUT_EXCLUDED_DIRECTORIES: ${{ inputs.excluded_directories }}
+          INPUT_REVIEWERS: ${{ inputs.reviewers }}

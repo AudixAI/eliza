@@ -78,53 +78,64 @@ export class Configuration implements Omit<ConfigurationData, 'rootDirectory'> {
 
     private loadConfiguration(): void {
         // First try to get from environment variables
-        const envRootDirectory = process.env.INPUT_ROOT_DIRECTORY;
+        const rootDirectory = process.env.INPUT_ROOT_DIRECTORY;
         let inputs;
 
-        if (envRootDirectory) {
-            // Use the provided input
-            const targetDir = envRootDirectory;
+        console.log('Environment variables:', {
+            rootDirectory: process.env.INPUT_ROOT_DIRECTORY,
+            pullNumber: process.env.INPUT_PULL_NUMBER,
+            excludedDirs: process.env.INPUT_EXCLUDED_DIRECTORIES,
+            reviewers: process.env.INPUT_REVIEWERS
+        });
+
+        if (rootDirectory) {
+            console.log('Using root directory from environment variable:', rootDirectory);
             this._rootDirectory = {
-                absolute: path.resolve(this.repoRoot, targetDir),
-                relative: targetDir.replace(/^\/+/, '')
+                absolute: path.resolve(this.repoRoot, rootDirectory),
+                relative: rootDirectory.replace(/^\/+/, '')
             };
         } else {
-            // Fall back to reading from workflow file
+            console.log('Falling back to workflow file configuration');
             const workflowPath = join(this.repoRoot, '.github/workflows/jsdoc-automation.yml');
             if (!fs.existsSync(workflowPath)) {
                 throw new Error(`Workflow file not found at ${workflowPath}`);
             }
             const workflowContent = fs.readFileSync(workflowPath, 'utf8');
             const workflow = yaml.parse(workflowContent);
-            inputs = workflow.on.workflow_dispatch.inputs;
+            const inputs = workflow.on.workflow_dispatch.inputs;
 
             if (!inputs?.root_directory?.default) {
-                throw new Error('No root directory found in configuration');
+                throw new Error('No root directory default found in workflow configuration');
             }
 
             const targetDir = inputs.root_directory.default;
+            console.log('Using default root directory from workflow:', targetDir);
             this._rootDirectory = {
                 absolute: path.resolve(this.repoRoot, targetDir),
                 relative: targetDir.replace(/^\/+/, '')
             };
         }
 
-        // Similarly for other inputs, using optional chaining to avoid undefined errors
+        console.log('Final root directory configuration:', {
+            absolute: this._rootDirectory.absolute,
+            relative: this._rootDirectory.relative
+        });
+
+        // Handle other inputs
+        if (process.env.INPUT_PULL_NUMBER) {
+            console.log('Setting pull number from env:', process.env.INPUT_PULL_NUMBER);
+            this.repository.pullNumber = parseInt(process.env.INPUT_PULL_NUMBER);
+        }
+
         this.excludedDirectories = this.parseCommaSeparatedInput(
-            process.env.INPUT_EXCLUDED_DIRECTORIES || inputs?.excluded_directories?.default,
-            []
+            process.env.INPUT_EXCLUDED_DIRECTORIES,
+            ['node_modules', 'dist', 'test']
         );
 
         this.pullRequestReviewers = this.parseCommaSeparatedInput(
-            process.env.INPUT_REVIEWERS || inputs?.reviewers?.default,
+            process.env.INPUT_REVIEWERS,
             []
         );
-
-        if (process.env.INPUT_PULL_NUMBER) {
-            this.repository.pullNumber = parseInt(process.env.INPUT_PULL_NUMBER);
-        } else if (inputs?.pull_number?.default) {
-            this.repository.pullNumber = parseInt(inputs.pull_number.default);
-        }
     }
 
     private parseCommaSeparatedInput(input: string | undefined, defaultValue: string[]): string[] {
