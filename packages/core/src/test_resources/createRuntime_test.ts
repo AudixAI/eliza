@@ -17,6 +17,18 @@ import {
 } from "./constants.ts";
 import { User } from "./types.ts";
 
+/**
+ * Create a runtime environment based on the specified parameters.
+ * 
+ * @async
+ * @param {Object} param0 - Object containing environment settings, conversation length, evaluators, actions, and providers.
+ * @param {Record<string, string> | NodeJS.ProcessEnv} [env] - Environment variables or Node.js environment.
+ * @param {number} [conversationLength] - Length of the conversation.
+ * @param {Evaluator[]} [evaluators] - Array of Evaluator objects.
+ * @param {Action[]} [actions] - Array of Action objects.
+ * @param {Provider[]} [providers] - Array of Provider objects.
+ * @returns {Promise<{ user: User, session: { user: User }, runtime: AgentRuntime }>
+ */
 async function createRuntime({
     env,
     conversationLength,
