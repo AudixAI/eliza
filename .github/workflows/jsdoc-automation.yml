@@ -33,15 +33,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '23.3.0'  # Updated to match required version
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
+          run_install: false  # We'll run install separately with specific flags
 
+      # Clean install without frozen lockfile to update dependencies
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm up  # Update all dependencies to their latest allowed versions
 
       - name: Update config file
         run: |
@@ -62,10 +66,10 @@ jobs:
               .rootDirectory = $rd |
               .excludedDirectories = $ed |
               .pullRequestReviewers = $pr' \
-             packages/jsdoc-automation/src/config/config.json  > temp.json && mv temp.json packages/jsdoc-automation/src/config/config.json
+             packages/jsdoc-automation/src/config/config.json > temp.json && mv temp.json packages/jsdoc-automation/src/config/config.json
 
       - name: Run start command
-        run: pnpm start
+        run: cd packages/jsdoc-automation && pnpm start  # Added cd to correct directory
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GH_PAT }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
