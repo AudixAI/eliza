@@ -1,0 +1,32 @@
+{
+    "aiPromptTemplates": [],
+    "includedFiles": [],
+    "excludedFiles": [],
+    "commitMessageTemplate": "",
+    "pullRequestTemplate": "",
+    "rootDirectory": "/packages/jsdoc-automation/test",
+    "excludedDirectories": [
+        "node_modules"
+    ],
+    "aiService": {
+        "apiKey": "your-api-key"
+    },
+    "repository": {
+        "owner": "AudixAI",
+        "name": "plugin-audix",
+        "pullNumber": 16
+    },
+    "branch": "main",
+    "committedFiles": [],
+    "commitMessage": "Generated JSDoc comments",
+    "pullRequestTitle": "JSDoc Generation",
+    "pullRequestDescription": "Automated JSDoc generation for the codebase",
+    "pullRequestLabels": [
+        "documentation"
+    ],
+    "pullRequestReviewers": [
+        "shekharpalit"
+    ],
+    "workflowTriggers": [],
+    "workflowSteps": []
+}

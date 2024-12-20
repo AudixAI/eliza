@@ -1,0 +1,2836 @@
+{
+  "type": "Program",
+  "range": [
+    0,
+    664
+  ],
+  "body": [
+    {
+      "type": "ImportDeclaration",
+      "attributes": [],
+      "importKind": "value",
+      "source": {
+        "type": "Literal",
+        "raw": "\"sqlite-vec\"",
+        "value": "sqlite-vec",
+        "range": [
+          27,
+          39
+        ],
+        "loc": {
+          "end": {
+            "column": 39,
+            "line": 1
+          },
+          "start": {
+            "column": 27,
+            "line": 1
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportNamespaceSpecifier",
+          "local": {
+            "type": "Identifier",
+            "decorators": [],
+            "name": "sqliteVec",
+            "optional": false,
+            "range": [
+              12,
+              21
+            ],
+            "loc": {
+              "end": {
+                "column": 21,
+                "line": 1
+              },
+              "start": {
+                "column": 12,
+                "line": 1
+              }
+            }
+          },
+          "range": [
+            7,
+            21
+          ],
+          "loc": {
+            "end": {
+              "column": 21,
+              "line": 1
+            },
+            "start": {
+              "column": 7,
+              "line": 1
+            }
+          }
+        }
+      ],
+      "range": [
+        0,
+        40
+      ],
+      "loc": {
+        "end": {
+          "column": 40,
+          "line": 1
+        },
+        "start": {
+          "column": 0,
+          "line": 1
+        }
+      }
+    },
+    {
+      "type": "ImportDeclaration",
+      "attributes": [],
+      "importKind": "value",
+      "source": {
+        "type": "Literal",
+        "raw": "\"better-sqlite3\"",
+        "value": "better-sqlite3",
+        "range": [
+          66,
+          82
+        ],
+        "loc": {
+          "end": {
+            "column": 41,
+            "line": 2
+          },
+          "start": {
+            "column": 25,
+            "line": 2
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "imported": {
+            "type": "Identifier",
+            "decorators": [],
+            "name": "Database",
+            "optional": false,
+            "range": [
+              50,
+              58
+            ],
+            "loc": {
+              "end": {
+                "column": 17,
+                "line": 2
+              },
+              "start": {
+                "column": 9,
+                "line": 2
+              }
+            }
+          },
+          "importKind": "value",
+          "local": {
+            "type": "Identifier",
+            "decorators": [],
+            "name": "Database",
+            "optional": false,
+            "range": [
+              50,
+              58
+            ],
+            "loc": {
+              "end": {
+                "column": 17,
+                "line": 2
+              },
+              "start": {
+                "column": 9,
+                "line": 2
+              }
+            }
+          },
+          "range": [
+            50,
+            58
+          ],
+          "loc": {
+            "end": {
+              "column": 17,
+              "line": 2
+            },
+            "start": {
+              "column": 9,
+              "line": 2
+            }
+          }
+        }
+      ],
+      "range": [
+        41,
+        83
+      ],
+      "loc": {
+        "end": {
+          "column": 42,
+          "line": 2
+        },
+        "start": {
+          "column": 0,
+          "line": 2
+        }
+      }
+    },
+    {
+      "type": "ImportDeclaration",
+      "attributes": [],
+      "importKind": "value",
+      "source": {
+        "type": "Literal",
+        "raw": "\"@ai16z/eliza\"",
+        "value": "@ai16z/eliza",
+        "range": [
+          112,
+          126
+        ],
+        "loc": {
+          "end": {
+            "column": 42,
+            "line": 3
+          },
+          "start": {
+            "column": 28,
+            "line": 3
+          }
+        }
+      },
+      "specifiers": [
+        {
+          "type": "ImportSpecifier",
+          "imported": {
+            "type": "Identifier",
+            "decorators": [],
+            "name": "elizaLogger",
+            "optional": false,
+            "range": [
+              93,
+              104
+            ],
+            "loc": {
+              "end": {
+                "column": 20,
+                "line": 3
+              },
+              "start": {
+                "column": 9,
+                "line": 3
+              }
+            }
+          },
+          "importKind": "value",
+          "local": {
+            "type": "Identifier",
+            "decorators": [],
+            "name": "elizaLogger",
+            "optional": false,
+            "range": [
+              93,
+              104
+            ],
+            "loc": {
+              "end": {
+                "column": 20,
+                "line": 3
+              },
+              "start": {
+                "column": 9,
+                "line": 3
+              }
+            }
+          },
+          "range": [
+            93,
+            104
+          ],
+          "loc": {
+            "end": {
+              "column": 20,
+              "line": 3
+            },
+            "start": {
+              "column": 9,
+              "line": 3
+            }
+          }
+        }
+      ],
+      "range": [
+        84,
+        127
+      ],
+      "loc": {
+        "end": {
+          "column": 43,
+          "line": 3
+        },
+        "start": {
+          "column": 0,
+          "line": 3
+        }
+      }
+    },
+    {
+      "type": "ExportNamedDeclaration",
+      "range": [
+        198,
+        526
+      ],
+      "attributes": [],
+      "declaration": {
+        "type": "FunctionDeclaration",
+        "async": false,
+        "body": {
+          "type": "BlockStatement",
+          "body": [
+            {
+              "type": "TryStatement",
+              "block": {
+                "type": "BlockStatement",
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                      "type": "CallExpression",
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "decorators": [],
+                          "name": "db",
+                          "optional": false,
+                          "range": [
+                            325,
+                            327
+                          ],
+                          "loc": {
+                            "end": {
+                              "column": 25,
+                              "line": 9
+                            },
+                            "start": {
+                              "column": 23,
+                              "line": 9
+                            }
+                          }
+                        }
+                      ],
+                      "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "decorators": [],
+                          "name": "sqliteVec",
+                          "optional": false,
+                          "range": [
+                            310,
+                            319
+                          ],
+                          "loc": {
+                            "end": {
+                              "column": 17,
+                              "line": 9
+                            },
+                            "start": {
+                              "column": 8,
+                              "line": 9
+                            }
+                          }
+                        },
+                        "optional": false,
+                        "property": {
+                          "type": "Identifier",
+                          "decorators": [],
+                          "name": "load",
+                          "optional": false,
+                          "range": [
+                            320,
+                            324
+                          ],
+                          "loc": {
+                            "end": {
+                              "column": 22,
+                              "line": 9
+                            },
+                            "start": {
+                              "column": 18,
+                              "line": 9
+                            }
+                          }
+                        },
+                        "range": [
+                          310,
+                          324
+                        ],
+                        "loc": {
+                          "end": {
+                            "column": 22,
+                            "line": 9
+                          },
+                          "start": {
+                            "column": 8,
+                            "line": 9
+                          }
+                        }
+                      },
+                      "optional": false,
+                      "range": [
+                        310,
+                        328
+                      ],
+                      "loc": {
+                        "end": {
+                          "column": 26,
+                          "line": 9
+                        },
+                        "start": {
+                          "column": 8,
+                          "line": 9
+                        }
+                      }
+                    },
+                    "range": [
+                      310,
+                      329
+                    ],
+                    "loc": {
+                      "end": {
+                        "column": 27,
+                        "line": 9
+                      },
+                      "start": {
+                        "column": 8,
+                        "line": 9
+                      }
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                      "type": "CallExpression",
+                      "arguments": [
+                        {
+                          "type": "Literal",
+                          "raw": "\"sqlite-vec extensions loaded successfully.\"",
+                          "value": "sqlite-vec extensions loaded successfully.",
+                          "range": [
+                            354,
+                            398
+                          ],
+                          "loc": {
+                            "end": {
+                              "column": 68,
+                              "line": 10
+                            },
+                            "start": {
+                              "column": 24,
+                              "line": 10
+                            }
+                          }
+                        }
+                      ],
+                      "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": {
+                          "type": "Identifier",
+                          "decorators": [],
+                          "name": "elizaLogger",
+                          "optional": false,
+                          "range": [
+                            338,
+                            349
+                          ],
+                          "loc": {
+                            "end": {
+                              "column": 19,
+                              "line": 10
+                            },
+                            "start": {
+                              "column": 8,
+                              "line": 10
+                            }
+                          }
+                        },
+                        "optional": false,
+                        "property": {
+                          "type": "Identifier",
+                          "decorators": [],
+                          "name": "log",
+                          "optional": false,
+                          "range": [
+                            350,
+                            353
+                          ],
+                          "loc": {
+                            "end": {
+                              "column": 23,
+                              "line": 10
+                            },
+                            "start": {
+                              "column": 20,
+                              "line": 10
+                            }
+                          }
+                        },
+                        "range": [
+                          338,
+                          353
+                        ],
+                        "loc": {
+                          "end": {
+                            "column": 23,
+                            "line": 10
+                          },
+                          "start": {
+                            "column": 8,
+                            "line": 10
+                          }
+                        }
+                      },
+                      "optional": false,
+                      "range": [
+                        338,
+                        399
+                      ],
+                      "loc": {
+                        "end": {
+                          "column": 69,
+                          "line": 10
+                        },
+                        "start": {
+                          "column": 8,
+                          "line": 10
+                        }
+                      }
+                    },
+                    "range": [
+                      338,
+                      400
+                    ],
+                    "loc": {
+                      "end": {
+                        "column": 70,
+                        "line": 10
+                      },
+                      "start": {
+                        "column": 8,
+                        "line": 10
+                      }
+                    }
+                  }
+                ],
+                "range": [
+                  262,
+                  406
+                ],
+                "loc": {
+                  "end": {
+                    "column": 5,
+                    "line": 11
+                  },
+                  "start": {
+                    "column": 8,
+                    "line": 7
+                  }
+                }
+              },
+              "finalizer": null,
+              "handler": {
+                "type": "CatchClause",
+                "body": {
+                  "type": "BlockStatement",
+                  "body": [
+                    {
+                      "type": "ExpressionStatement",
+                      "expression": {
+                        "type": "CallExpression",
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "raw": "\"Failed to load sqlite-vec extensions:\"",
+                            "value": "Failed to load sqlite-vec extensions:",
+                            "range": [
+                              449,
+                              488
+                            ],
+                            "loc": {
+                              "end": {
+                                "column": 65,
+                                "line": 12
+                              },
+                              "start": {
+                                "column": 26,
+                                "line": 12
+                              }
+                            }
+                          },
+                          {
+                            "type": "Identifier",
+                            "decorators": [],
+                            "name": "error",
+                            "optional": false,
+                            "range": [
+                              490,
+                              495
+                            ],
+                            "loc": {
+                              "end": {
+                                "column": 72,
+                                "line": 12
+                              },
+                              "start": {
+                                "column": 67,
+                                "line": 12
+                              }
+                            }
+                          }
+                        ],
+                        "callee": {
+                          "type": "MemberExpression",
+                          "computed": false,
+                          "object": {
+                            "type": "Identifier",
+                            "decorators": [],
+                            "name": "elizaLogger",
+                            "optional": false,
+                            "range": [
+                              431,
+                              442
+                            ],
+                            "loc": {
+                              "end": {
+                                "column": 19,
+                                "line": 12
+                              },
+                              "start": {
+                                "column": 8,
+                                "line": 12
+                              }
+                            }
+                          },
+                          "optional": false,
+                          "property": {
+                            "type": "Identifier",
+                            "decorators": [],
+                            "name": "error",
+                            "optional": false,
+                            "range": [
+                              443,
+                              448
+                            ],
+                            "loc": {
+                              "end": {
+                                "column": 25,
+                                "line": 12
+                              },
+                              "start": {
+                                "column": 20,
+                                "line": 12
+                              }
+                            }
+                          },
+                          "range": [
+                            431,
+                            448
+                          ],
+                          "loc": {
+                            "end": {
+                              "column": 25,
+                              "line": 12
+                            },
+                            "start": {
+                              "column": 8,
+                              "line": 12
+                            }
+                          }
+                        },
+                        "optional": false,
+                        "range": [
+                          431,
+                          496
+                        ],
+                        "loc": {
+                          "end": {
+                            "column": 73,
+                            "line": 12
+                          },
+                          "start": {
+                            "column": 8,
+                            "line": 12
+                          }
+                        }
+                      },
+                      "range": [
+                        431,
+                        497
+                      ],
+                      "loc": {
+                        "end": {
+                          "column": 74,
+                          "line": 12
+                        },
+                        "start": {
+                          "column": 8,
+                          "line": 12
+                        }
+                      }
+                    },
+                    {
+                      "type": "ThrowStatement",
+                      "argument": {
+                        "type": "Identifier",
+                        "decorators": [],
+                        "name": "error",
+                        "optional": false,
+                        "range": [
+                          512,
+                          517
+                        ],
+                        "loc": {
+                          "end": {
+                            "column": 19,
+                            "line": 13
+                          },
+                          "start": {
+                            "column": 14,
+                            "line": 13
+                          }
+                        }
+                      },
+                      "range": [
+                        506,
+                        518
+                      ],
+                      "loc": {
+                        "end": {
+                          "column": 20,
+                          "line": 13
+                        },
+                        "start": {
+                          "column": 8,
+                          "line": 13
+                        }
+                      }
+                    }
+                  ],
+                  "range": [
+                    421,
+                    524
+                  ],
+                  "loc": {
+                    "end": {
+                      "column": 5,
+                      "line": 14
+                    },
+                    "start": {
+                      "column": 20,
+                      "line": 11
+                    }
+                  }
+                },
+                "param": {
+                  "type": "Identifier",
+                  "decorators": [],
+                  "name": "error",
+                  "optional": false,
+                  "range": [
+                    414,
+                    419
+                  ],
+                  "loc": {
+                    "end": {
+                      "column": 18,
+                      "line": 11
+                    },
+                    "start": {
+                      "column": 13,
+                      "line": 11
+                    }
+                  }
+                },
+                "range": [
+                  407,
+                  524
+                ],
+                "loc": {
+                  "end": {
+                    "column": 5,
+                    "line": 14
+                  },
+                  "start": {
+                    "column": 6,
+                    "line": 11
+                  }
+                }
+              },
+              "range": [
+                258,
+                524
+              ],
+              "loc": {
+                "end": {
+                  "column": 5,
+                  "line": 14
+                },
+                "start": {
+                  "column": 4,
+                  "line": 7
+                }
+              }
+            }
+          ],
+          "range": [
+            252,
+            526
+          ],
+          "loc": {
+            "end": {
+              "column": 1,
+              "line": 15
+            },
+            "start": {
+              "column": 54,
+              "line": 6
+            }
+          }
+        },
+        "declare": false,
+        "expression": false,
+        "generator": false,
+        "id": {
+          "type": "Identifier",
+          "decorators": [],
+          "name": "loadVecExtensions",
+          "optional": false,
+          "range": [
+            214,
+            231
+          ],
+          "loc": {
+            "end": {
+              "column": 33,
+              "line": 6
+            },
+            "start": {
+              "column": 16,
+              "line": 6
+            }
+          }
+        },
+        "params": [
+          {
+            "type": "Identifier",
+            "decorators": [],
+            "name": "db",
+            "optional": false,
+            "typeAnnotation": {
+              "type": "TSTypeAnnotation",
+              "loc": {
+                "end": {
+                  "column": 46,
+                  "line": 6
+                },
+                "start": {
+                  "column": 36,
+                  "line": 6
+                }
+              },
+              "range": [
+                234,
+                244
+              ],
+              "typeAnnotation": {
+                "type": "TSTypeReference",
+                "typeName": {
+                  "type": "Identifier",
+                  "decorators": [],
+                  "name": "Database",
+                  "optional": false,
+                  "range": [
+                    236,
+                    244
+                  ],
+                  "loc": {
+                    "end": {
+                      "column": 46,
+                      "line": 6
+                    },
+                    "start": {
+                      "column": 38,
+                      "line": 6
+                    }
+                  }
+                },
+                "range": [
+                  236,
+                  244
+                ],
+                "loc": {
+                  "end": {
+                    "column": 46,
+                    "line": 6
+                  },
+                  "start": {
+                    "column": 38,
+                    "line": 6
+                  }
+                }
+              }
+            },
+            "range": [
+              232,
+              244
+            ],
+            "loc": {
+              "end": {
+                "column": 46,
+                "line": 6
+              },
+              "start": {
+                "column": 34,
+                "line": 6
+              }
+            }
+          }
+        ],
+        "returnType": {
+          "type": "TSTypeAnnotation",
+          "loc": {
+            "end": {
+              "column": 53,
+              "line": 6
+            },
+            "start": {
+              "column": 47,
+              "line": 6
+            }
+          },
+          "range": [
+            245,
+            251
+          ],
+          "typeAnnotation": {
+            "type": "TSVoidKeyword",
+            "range": [
+              247,
+              251
+            ],
+            "loc": {
+              "end": {
+                "column": 53,
+                "line": 6
+              },
+              "start": {
+                "column": 49,
+                "line": 6
+              }
+            }
+          }
+        },
+        "range": [
+          205,
+          526
+        ],
+        "loc": {
+          "end": {
+            "column": 1,
+            "line": 15
+          },
+          "start": {
+            "column": 7,
+            "line": 6
+          }
+        }
+      },
+      "exportKind": "value",
+      "source": null,
+      "specifiers": [],
+      "loc": {
+        "end": {
+          "column": 1,
+          "line": 15
+        },
+        "start": {
+          "column": 0,
+          "line": 6
+        }
+      }
+    },
+    {
+      "type": "ExportNamedDeclaration",
+      "range": [
+        592,
+        663
+      ],
+      "attributes": [],
+      "declaration": {
+        "type": "FunctionDeclaration",
+        "async": false,
+        "body": {
+          "type": "BlockStatement",
+          "body": [
+            {
+              "type": "ExpressionStatement",
+              "expression": {
+                "type": "CallExpression",
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "decorators": [],
+                    "name": "db",
+                    "optional": false,
+                    "range": [
+                      657,
+                      659
+                    ],
+                    "loc": {
+                      "end": {
+                        "column": 24,
+                        "line": 21
+                      },
+                      "start": {
+                        "column": 22,
+                        "line": 21
+                      }
+                    }
+                  }
+                ],
+                "callee": {
+                  "type": "Identifier",
+                  "decorators": [],
+                  "name": "loadVecExtensions",
+                  "optional": false,
+                  "range": [
+                    639,
+                    656
+                  ],
+                  "loc": {
+                    "end": {
+                      "column": 21,
+                      "line": 21
+                    },
+                    "start": {
+                      "column": 4,
+                      "line": 21
+                    }
+                  }
+                },
+                "optional": false,
+                "range": [
+                  639,
+                  660
+                ],
+                "loc": {
+                  "end": {
+                    "column": 25,
+                    "line": 21
+                  },
+                  "start": {
+                    "column": 4,
+                    "line": 21
+                  }
+                }
+              },
+              "range": [
+                639,
+                661
+              ],
+              "loc": {
+                "end": {
+                  "column": 26,
+                  "line": 21
+                },
+                "start": {
+                  "column": 4,
+                  "line": 21
+                }
+              }
+            }
+          ],
+          "range": [
+            633,
+            663
+          ],
+          "loc": {
+            "end": {
+              "column": 1,
+              "line": 22
+            },
+            "start": {
+              "column": 41,
+              "line": 20
+            }
+          }
+        },
+        "declare": false,
+        "expression": false,
+        "generator": false,
+        "id": {
+          "type": "Identifier",
+          "decorators": [],
+          "name": "load",
+          "optional": false,
+          "range": [
+            608,
+            612
+          ],
+          "loc": {
+            "end": {
+              "column": 20,
+              "line": 20
+            },
+            "start": {
+              "column": 16,
+              "line": 20
+            }
+          }
+        },
+        "params": [
+          {
+            "type": "Identifier",
+            "decorators": [],
+            "name": "db",
+            "optional": false,
+            "typeAnnotation": {
+              "type": "TSTypeAnnotation",
+              "loc": {
+                "end": {
+                  "column": 33,
+                  "line": 20
+                },
+                "start": {
+                  "column": 23,
+                  "line": 20
+                }
+              },
+              "range": [
+                615,
+                625
+              ],
+              "typeAnnotation": {
+                "type": "TSTypeReference",
+                "typeName": {
+                  "type": "Identifier",
+                  "decorators": [],
+                  "name": "Database",
+                  "optional": false,
+                  "range": [
+                    617,
+                    625
+                  ],
+                  "loc": {
+                    "end": {
+                      "column": 33,
+                      "line": 20
+                    },
+                    "start": {
+                      "column": 25,
+                      "line": 20
+                    }
+                  }
+                },
+                "range": [
+                  617,
+                  625
+                ],
+                "loc": {
+                  "end": {
+                    "column": 33,
+                    "line": 20
+                  },
+                  "start": {
+                    "column": 25,
+                    "line": 20
+                  }
+                }
+              }
+            },
+            "range": [
+              613,
+              625
+            ],
+            "loc": {
+              "end": {
+                "column": 33,
+                "line": 20
+              },
+              "start": {
+                "column": 21,
+                "line": 20
+              }
+            }
+          }
+        ],
+        "returnType": {
+          "type": "TSTypeAnnotation",
+          "loc": {
+            "end": {
+              "column": 40,
+              "line": 20
+            },
+            "start": {
+              "column": 34,
+              "line": 20
+            }
+          },
+          "range": [
+            626,
+            632
+          ],
+          "typeAnnotation": {
+            "type": "TSVoidKeyword",
+            "range": [
+              628,
+              632
+            ],
+            "loc": {
+              "end": {
+                "column": 40,
+                "line": 20
+              },
+              "start": {
+                "column": 36,
+                "line": 20
+              }
+            }
+          }
+        },
+        "range": [
+          599,
+          663
+        ],
+        "loc": {
+          "end": {
+            "column": 1,
+            "line": 22
+          },
+          "start": {
+            "column": 7,
+            "line": 20
+          }
+        }
+      },
+      "exportKind": "value",
+      "source": null,
+      "specifiers": [],
+      "loc": {
+        "end": {
+          "column": 1,
+          "line": 22
+        },
+        "start": {
+          "column": 0,
+          "line": 20
+        }
+      }
+    }
+  ],
+  "comments": [
+    {
+      "type": "Line",
+      "loc": {
+        "end": {
+          "column": 68,
+          "line": 5
+        },
+        "start": {
+          "column": 0,
+          "line": 5
+        }
+      },
+      "range": [
+        129,
+        197
+      ],
+      "value": " Loads the sqlite-vec extensions into the provided SQLite database"
+    },
+    {
+      "type": "Line",
+      "loc": {
+        "end": {
+          "column": 37,
+          "line": 8
+        },
+        "start": {
+          "column": 8,
+          "line": 8
+        }
+      },
+      "range": [
+        272,
+        301
+      ],
+      "value": " Load sqlite-vec extensions"
+    },
+    {
+      "type": "Block",
+      "loc": {
+        "end": {
+          "column": 3,
+          "line": 19
+        },
+        "start": {
+          "column": 0,
+          "line": 17
+        }
+      },
+      "range": [
+        528,
+        591
+      ],
+      "value": "*\n * @param db - An instance of better - sqlite3 Database\n "
+    }
+  ],
+  "sourceType": "module",
+  "tokens": [
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 6,
+          "line": 1
+        },
+        "start": {
+          "column": 0,
+          "line": 1
+        }
+      },
+      "range": [
+        0,
+        6
+      ],
+      "value": "import"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 8,
+          "line": 1
+        },
+        "start": {
+          "column": 7,
+          "line": 1
+        }
+      },
+      "range": [
+        7,
+        8
+      ],
+      "value": "*"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 11,
+          "line": 1
+        },
+        "start": {
+          "column": 9,
+          "line": 1
+        }
+      },
+      "range": [
+        9,
+        11
+      ],
+      "value": "as"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 21,
+          "line": 1
+        },
+        "start": {
+          "column": 12,
+          "line": 1
+        }
+      },
+      "range": [
+        12,
+        21
+      ],
+      "value": "sqliteVec"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 26,
+          "line": 1
+        },
+        "start": {
+          "column": 22,
+          "line": 1
+        }
+      },
+      "range": [
+        22,
+        26
+      ],
+      "value": "from"
+    },
+    {
+      "type": "String",
+      "loc": {
+        "end": {
+          "column": 39,
+          "line": 1
+        },
+        "start": {
+          "column": 27,
+          "line": 1
+        }
+      },
+      "range": [
+        27,
+        39
+      ],
+      "value": "\"sqlite-vec\""
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 40,
+          "line": 1
+        },
+        "start": {
+          "column": 39,
+          "line": 1
+        }
+      },
+      "range": [
+        39,
+        40
+      ],
+      "value": ";"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 6,
+          "line": 2
+        },
+        "start": {
+          "column": 0,
+          "line": 2
+        }
+      },
+      "range": [
+        41,
+        47
+      ],
+      "value": "import"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 8,
+          "line": 2
+        },
+        "start": {
+          "column": 7,
+          "line": 2
+        }
+      },
+      "range": [
+        48,
+        49
+      ],
+      "value": "{"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 17,
+          "line": 2
+        },
+        "start": {
+          "column": 9,
+          "line": 2
+        }
+      },
+      "range": [
+        50,
+        58
+      ],
+      "value": "Database"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 19,
+          "line": 2
+        },
+        "start": {
+          "column": 18,
+          "line": 2
+        }
+      },
+      "range": [
+        59,
+        60
+      ],
+      "value": "}"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 24,
+          "line": 2
+        },
+        "start": {
+          "column": 20,
+          "line": 2
+        }
+      },
+      "range": [
+        61,
+        65
+      ],
+      "value": "from"
+    },
+    {
+      "type": "String",
+      "loc": {
+        "end": {
+          "column": 41,
+          "line": 2
+        },
+        "start": {
+          "column": 25,
+          "line": 2
+        }
+      },
+      "range": [
+        66,
+        82
+      ],
+      "value": "\"better-sqlite3\""
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 42,
+          "line": 2
+        },
+        "start": {
+          "column": 41,
+          "line": 2
+        }
+      },
+      "range": [
+        82,
+        83
+      ],
+      "value": ";"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 6,
+          "line": 3
+        },
+        "start": {
+          "column": 0,
+          "line": 3
+        }
+      },
+      "range": [
+        84,
+        90
+      ],
+      "value": "import"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 8,
+          "line": 3
+        },
+        "start": {
+          "column": 7,
+          "line": 3
+        }
+      },
+      "range": [
+        91,
+        92
+      ],
+      "value": "{"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 20,
+          "line": 3
+        },
+        "start": {
+          "column": 9,
+          "line": 3
+        }
+      },
+      "range": [
+        93,
+        104
+      ],
+      "value": "elizaLogger"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 22,
+          "line": 3
+        },
+        "start": {
+          "column": 21,
+          "line": 3
+        }
+      },
+      "range": [
+        105,
+        106
+      ],
+      "value": "}"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 27,
+          "line": 3
+        },
+        "start": {
+          "column": 23,
+          "line": 3
+        }
+      },
+      "range": [
+        107,
+        111
+      ],
+      "value": "from"
+    },
+    {
+      "type": "String",
+      "loc": {
+        "end": {
+          "column": 42,
+          "line": 3
+        },
+        "start": {
+          "column": 28,
+          "line": 3
+        }
+      },
+      "range": [
+        112,
+        126
+      ],
+      "value": "\"@ai16z/eliza\""
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 43,
+          "line": 3
+        },
+        "start": {
+          "column": 42,
+          "line": 3
+        }
+      },
+      "range": [
+        126,
+        127
+      ],
+      "value": ";"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 6,
+          "line": 6
+        },
+        "start": {
+          "column": 0,
+          "line": 6
+        }
+      },
+      "range": [
+        198,
+        204
+      ],
+      "value": "export"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 15,
+          "line": 6
+        },
+        "start": {
+          "column": 7,
+          "line": 6
+        }
+      },
+      "range": [
+        205,
+        213
+      ],
+      "value": "function"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 33,
+          "line": 6
+        },
+        "start": {
+          "column": 16,
+          "line": 6
+        }
+      },
+      "range": [
+        214,
+        231
+      ],
+      "value": "loadVecExtensions"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 34,
+          "line": 6
+        },
+        "start": {
+          "column": 33,
+          "line": 6
+        }
+      },
+      "range": [
+        231,
+        232
+      ],
+      "value": "("
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 36,
+          "line": 6
+        },
+        "start": {
+          "column": 34,
+          "line": 6
+        }
+      },
+      "range": [
+        232,
+        234
+      ],
+      "value": "db"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 37,
+          "line": 6
+        },
+        "start": {
+          "column": 36,
+          "line": 6
+        }
+      },
+      "range": [
+        234,
+        235
+      ],
+      "value": ":"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 46,
+          "line": 6
+        },
+        "start": {
+          "column": 38,
+          "line": 6
+        }
+      },
+      "range": [
+        236,
+        244
+      ],
+      "value": "Database"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 47,
+          "line": 6
+        },
+        "start": {
+          "column": 46,
+          "line": 6
+        }
+      },
+      "range": [
+        244,
+        245
+      ],
+      "value": ")"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 48,
+          "line": 6
+        },
+        "start": {
+          "column": 47,
+          "line": 6
+        }
+      },
+      "range": [
+        245,
+        246
+      ],
+      "value": ":"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 53,
+          "line": 6
+        },
+        "start": {
+          "column": 49,
+          "line": 6
+        }
+      },
+      "range": [
+        247,
+        251
+      ],
+      "value": "void"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 55,
+          "line": 6
+        },
+        "start": {
+          "column": 54,
+          "line": 6
+        }
+      },
+      "range": [
+        252,
+        253
+      ],
+      "value": "{"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 7,
+          "line": 7
+        },
+        "start": {
+          "column": 4,
+          "line": 7
+        }
+      },
+      "range": [
+        258,
+        261
+      ],
+      "value": "try"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 9,
+          "line": 7
+        },
+        "start": {
+          "column": 8,
+          "line": 7
+        }
+      },
+      "range": [
+        262,
+        263
+      ],
+      "value": "{"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 17,
+          "line": 9
+        },
+        "start": {
+          "column": 8,
+          "line": 9
+        }
+      },
+      "range": [
+        310,
+        319
+      ],
+      "value": "sqliteVec"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 18,
+          "line": 9
+        },
+        "start": {
+          "column": 17,
+          "line": 9
+        }
+      },
+      "range": [
+        319,
+        320
+      ],
+      "value": "."
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 22,
+          "line": 9
+        },
+        "start": {
+          "column": 18,
+          "line": 9
+        }
+      },
+      "range": [
+        320,
+        324
+      ],
+      "value": "load"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 23,
+          "line": 9
+        },
+        "start": {
+          "column": 22,
+          "line": 9
+        }
+      },
+      "range": [
+        324,
+        325
+      ],
+      "value": "("
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 25,
+          "line": 9
+        },
+        "start": {
+          "column": 23,
+          "line": 9
+        }
+      },
+      "range": [
+        325,
+        327
+      ],
+      "value": "db"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 26,
+          "line": 9
+        },
+        "start": {
+          "column": 25,
+          "line": 9
+        }
+      },
+      "range": [
+        327,
+        328
+      ],
+      "value": ")"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 27,
+          "line": 9
+        },
+        "start": {
+          "column": 26,
+          "line": 9
+        }
+      },
+      "range": [
+        328,
+        329
+      ],
+      "value": ";"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 19,
+          "line": 10
+        },
+        "start": {
+          "column": 8,
+          "line": 10
+        }
+      },
+      "range": [
+        338,
+        349
+      ],
+      "value": "elizaLogger"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 20,
+          "line": 10
+        },
+        "start": {
+          "column": 19,
+          "line": 10
+        }
+      },
+      "range": [
+        349,
+        350
+      ],
+      "value": "."
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 23,
+          "line": 10
+        },
+        "start": {
+          "column": 20,
+          "line": 10
+        }
+      },
+      "range": [
+        350,
+        353
+      ],
+      "value": "log"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 24,
+          "line": 10
+        },
+        "start": {
+          "column": 23,
+          "line": 10
+        }
+      },
+      "range": [
+        353,
+        354
+      ],
+      "value": "("
+    },
+    {
+      "type": "String",
+      "loc": {
+        "end": {
+          "column": 68,
+          "line": 10
+        },
+        "start": {
+          "column": 24,
+          "line": 10
+        }
+      },
+      "range": [
+        354,
+        398
+      ],
+      "value": "\"sqlite-vec extensions loaded successfully.\""
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 69,
+          "line": 10
+        },
+        "start": {
+          "column": 68,
+          "line": 10
+        }
+      },
+      "range": [
+        398,
+        399
+      ],
+      "value": ")"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 70,
+          "line": 10
+        },
+        "start": {
+          "column": 69,
+          "line": 10
+        }
+      },
+      "range": [
+        399,
+        400
+      ],
+      "value": ";"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 5,
+          "line": 11
+        },
+        "start": {
+          "column": 4,
+          "line": 11
+        }
+      },
+      "range": [
+        405,
+        406
+      ],
+      "value": "}"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 11,
+          "line": 11
+        },
+        "start": {
+          "column": 6,
+          "line": 11
+        }
+      },
+      "range": [
+        407,
+        412
+      ],
+      "value": "catch"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 13,
+          "line": 11
+        },
+        "start": {
+          "column": 12,
+          "line": 11
+        }
+      },
+      "range": [
+        413,
+        414
+      ],
+      "value": "("
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 18,
+          "line": 11
+        },
+        "start": {
+          "column": 13,
+          "line": 11
+        }
+      },
+      "range": [
+        414,
+        419
+      ],
+      "value": "error"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 19,
+          "line": 11
+        },
+        "start": {
+          "column": 18,
+          "line": 11
+        }
+      },
+      "range": [
+        419,
+        420
+      ],
+      "value": ")"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 21,
+          "line": 11
+        },
+        "start": {
+          "column": 20,
+          "line": 11
+        }
+      },
+      "range": [
+        421,
+        422
+      ],
+      "value": "{"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 19,
+          "line": 12
+        },
+        "start": {
+          "column": 8,
+          "line": 12
+        }
+      },
+      "range": [
+        431,
+        442
+      ],
+      "value": "elizaLogger"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 20,
+          "line": 12
+        },
+        "start": {
+          "column": 19,
+          "line": 12
+        }
+      },
+      "range": [
+        442,
+        443
+      ],
+      "value": "."
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 25,
+          "line": 12
+        },
+        "start": {
+          "column": 20,
+          "line": 12
+        }
+      },
+      "range": [
+        443,
+        448
+      ],
+      "value": "error"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 26,
+          "line": 12
+        },
+        "start": {
+          "column": 25,
+          "line": 12
+        }
+      },
+      "range": [
+        448,
+        449
+      ],
+      "value": "("
+    },
+    {
+      "type": "String",
+      "loc": {
+        "end": {
+          "column": 65,
+          "line": 12
+        },
+        "start": {
+          "column": 26,
+          "line": 12
+        }
+      },
+      "range": [
+        449,
+        488
+      ],
+      "value": "\"Failed to load sqlite-vec extensions:\""
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 66,
+          "line": 12
+        },
+        "start": {
+          "column": 65,
+          "line": 12
+        }
+      },
+      "range": [
+        488,
+        489
+      ],
+      "value": ","
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 72,
+          "line": 12
+        },
+        "start": {
+          "column": 67,
+          "line": 12
+        }
+      },
+      "range": [
+        490,
+        495
+      ],
+      "value": "error"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 73,
+          "line": 12
+        },
+        "start": {
+          "column": 72,
+          "line": 12
+        }
+      },
+      "range": [
+        495,
+        496
+      ],
+      "value": ")"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 74,
+          "line": 12
+        },
+        "start": {
+          "column": 73,
+          "line": 12
+        }
+      },
+      "range": [
+        496,
+        497
+      ],
+      "value": ";"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 13,
+          "line": 13
+        },
+        "start": {
+          "column": 8,
+          "line": 13
+        }
+      },
+      "range": [
+        506,
+        511
+      ],
+      "value": "throw"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 19,
+          "line": 13
+        },
+        "start": {
+          "column": 14,
+          "line": 13
+        }
+      },
+      "range": [
+        512,
+        517
+      ],
+      "value": "error"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 20,
+          "line": 13
+        },
+        "start": {
+          "column": 19,
+          "line": 13
+        }
+      },
+      "range": [
+        517,
+        518
+      ],
+      "value": ";"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 5,
+          "line": 14
+        },
+        "start": {
+          "column": 4,
+          "line": 14
+        }
+      },
+      "range": [
+        523,
+        524
+      ],
+      "value": "}"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 1,
+          "line": 15
+        },
+        "start": {
+          "column": 0,
+          "line": 15
+        }
+      },
+      "range": [
+        525,
+        526
+      ],
+      "value": "}"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 6,
+          "line": 20
+        },
+        "start": {
+          "column": 0,
+          "line": 20
+        }
+      },
+      "range": [
+        592,
+        598
+      ],
+      "value": "export"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 15,
+          "line": 20
+        },
+        "start": {
+          "column": 7,
+          "line": 20
+        }
+      },
+      "range": [
+        599,
+        607
+      ],
+      "value": "function"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 20,
+          "line": 20
+        },
+        "start": {
+          "column": 16,
+          "line": 20
+        }
+      },
+      "range": [
+        608,
+        612
+      ],
+      "value": "load"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 21,
+          "line": 20
+        },
+        "start": {
+          "column": 20,
+          "line": 20
+        }
+      },
+      "range": [
+        612,
+        613
+      ],
+      "value": "("
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 23,
+          "line": 20
+        },
+        "start": {
+          "column": 21,
+          "line": 20
+        }
+      },
+      "range": [
+        613,
+        615
+      ],
+      "value": "db"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 24,
+          "line": 20
+        },
+        "start": {
+          "column": 23,
+          "line": 20
+        }
+      },
+      "range": [
+        615,
+        616
+      ],
+      "value": ":"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 33,
+          "line": 20
+        },
+        "start": {
+          "column": 25,
+          "line": 20
+        }
+      },
+      "range": [
+        617,
+        625
+      ],
+      "value": "Database"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 34,
+          "line": 20
+        },
+        "start": {
+          "column": 33,
+          "line": 20
+        }
+      },
+      "range": [
+        625,
+        626
+      ],
+      "value": ")"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 35,
+          "line": 20
+        },
+        "start": {
+          "column": 34,
+          "line": 20
+        }
+      },
+      "range": [
+        626,
+        627
+      ],
+      "value": ":"
+    },
+    {
+      "type": "Keyword",
+      "loc": {
+        "end": {
+          "column": 40,
+          "line": 20
+        },
+        "start": {
+          "column": 36,
+          "line": 20
+        }
+      },
+      "range": [
+        628,
+        632
+      ],
+      "value": "void"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 42,
+          "line": 20
+        },
+        "start": {
+          "column": 41,
+          "line": 20
+        }
+      },
+      "range": [
+        633,
+        634
+      ],
+      "value": "{"
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 21,
+          "line": 21
+        },
+        "start": {
+          "column": 4,
+          "line": 21
+        }
+      },
+      "range": [
+        639,
+        656
+      ],
+      "value": "loadVecExtensions"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 22,
+          "line": 21
+        },
+        "start": {
+          "column": 21,
+          "line": 21
+        }
+      },
+      "range": [
+        656,
+        657
+      ],
+      "value": "("
+    },
+    {
+      "type": "Identifier",
+      "loc": {
+        "end": {
+          "column": 24,
+          "line": 21
+        },
+        "start": {
+          "column": 22,
+          "line": 21
+        }
+      },
+      "range": [
+        657,
+        659
+      ],
+      "value": "db"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 25,
+          "line": 21
+        },
+        "start": {
+          "column": 24,
+          "line": 21
+        }
+      },
+      "range": [
+        659,
+        660
+      ],
+      "value": ")"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 26,
+          "line": 21
+        },
+        "start": {
+          "column": 25,
+          "line": 21
+        }
+      },
+      "range": [
+        660,
+        661
+      ],
+      "value": ";"
+    },
+    {
+      "type": "Punctuator",
+      "loc": {
+        "end": {
+          "column": 1,
+          "line": 22
+        },
+        "start": {
+          "column": 0,
+          "line": 22
+        }
+      },
+      "range": [
+        662,
+        663
+      ],
+      "value": "}"
+    }
+  ],
+  "loc": {
+    "end": {
+      "column": 0,
+      "line": 23
+    },
+    "start": {
+      "column": 0,
+      "line": 1
+    }
+  }
+}
