@@ -17,7 +17,7 @@ import {
 } from "./constants.ts";
 import { User } from "./types.ts";
 
-export async function createRuntime({
+async function createRuntime({
     env,
     conversationLength,
     evaluators = [],
