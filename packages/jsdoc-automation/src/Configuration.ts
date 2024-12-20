@@ -79,9 +79,16 @@ export class Configuration implements Omit<ConfigurationData, 'rootDirectory'> {
     private loadConfiguration(): void {
         // Use repo root to find workflow file
         const workflowPath = join(this.repoRoot, '.github/workflows/jsdoc-automation.yml');
+        if (!fs.existsSync(workflowPath)) {
+            throw new Error(`Workflow file not found at ${workflowPath}`);
+        }
         const workflowContent = fs.readFileSync(workflowPath, 'utf8');
         const workflow = yaml.parse(workflowContent);
         const inputs = workflow.on.workflow_dispatch.inputs;
+
+        if (!inputs) {
+            throw new Error('No workflow inputs found in configuration');
+        }
 
         // Get the target directory path (e.g., 'packages/core/src')
         const targetDir = inputs.root_directory.default;
@@ -92,21 +99,27 @@ export class Configuration implements Omit<ConfigurationData, 'rootDirectory'> {
             relative: targetDir.replace(/^\/+/, '') // Remove leading slashes if any
         };
 
-        this.excludedDirectories = inputs.excluded_directories?.default
-        ? inputs.excluded_directories.default
-            .split(',')
-            .map((dir: string) => dir.trim())
-        : [];
+        // Handle excluded directories
+        this.excludedDirectories = this.parseCommaSeparatedInput(
+            inputs.excluded_directories?.default,
+            []
+        );
 
-        this.pullRequestReviewers = inputs.reviewers?.default
-            ? inputs.reviewers.default
-                .split(',')
-                .filter(Boolean)
-                .map((reviewer: string) => reviewer.trim())
-            : [];
+        this.pullRequestReviewers = this.parseCommaSeparatedInput(
+            inputs.reviewers?.default,
+            []
+        );
 
         if (inputs.pull_number) {
             this.repository.pullNumber = parseInt(inputs.pull_number);
         }
+    }
+
+    private parseCommaSeparatedInput(input: string | undefined, defaultValue: string[]): string[] {
+        if (!input) return defaultValue;
+        return input
+            .split(',')
+            .map(item => item.trim())
+            .filter(Boolean);
     }
 }
