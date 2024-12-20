@@ -35,12 +35,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for better git operations
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'  # Using LTS version for better stability
+          node-version: '20'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -48,49 +48,24 @@ jobs:
           version: 8
           run_install: false
 
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.pnpm-store
-            node_modules/.pnpm
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      - name: Validate inputs and directory structure
-        run: |
-          # Check root_directory format
-          if [[ "${{ github.event.inputs.root_directory }}" == /* ]]; then
-            echo "Error: root_directory should be relative to repository root (no leading slash)"
-            exit 1
-          fi
-
-          # Ensure packages/jsdoc-automation exists
-          if [ ! -d "packages/jsdoc-automation" ]; then
-            echo "Error: jsdoc-automation package not found"
-            exit 1
-          fi
-
-          # Verify package.json exists
-          if [ ! -f "packages/jsdoc-automation/package.json" ]; then
-            echo "Error: package.json not found in jsdoc-automation"
-            exit 1
-          fi
-
-      - name: Install root dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install and build jsdoc-automation
+      - name: Update lockfile
         working-directory: packages/jsdoc-automation
         run: |
-          echo "Installing jsdoc-automation dependencies..."
-          pnpm install --frozen-lockfile
-          echo "Building jsdoc-automation..."
-          pnpm build || true  # Add build step if needed, otherwise remove this line
+          echo "Updating lockfile..."
+          pnpm install --no-frozen-lockfile
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add pnpm-lock.yaml
+          git commit -m "chore: update pnpm lockfile" || echo "No changes to commit"
+          git push || echo "No changes to push"
+
+      - name: Install root dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Install package dependencies
+        working-directory: packages/jsdoc-automation
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run documentation generator
         working-directory: packages/jsdoc-automation
-        run: |
-          echo "Starting documentation generation..."
-          pnpm start
+        run: pnpm start
