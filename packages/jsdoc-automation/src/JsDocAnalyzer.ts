@@ -6,20 +6,38 @@ interface Location {
     end: number;
 }
 
+/**
+ * Class to analyze JSDoc comments in TypeScript code.
+ */
 export class JsDocAnalyzer {
 
     public missingJsDocNodes: TSESTree.Node[] = [];
 
+/**
+ * Constructor for initializing a new instance.
+ * @param {TypeScriptParser} typeScriptParser - An instance of TypeScriptParser used for parsing TypeScript code.
+ */
     constructor(
         public typeScriptParser: TypeScriptParser,
     ) { }
 
 
 
+/**
+     * Analyzes the Abstract Syntax Tree (AST) of a program.
+     * @param {TSESTree.Program} ast - The AST of the program to analyze.
+     * @returns {void}
+     */
     public analyze(ast: TSESTree.Program): void {
         this.traverse(ast, ast.comments || []);
     }
 
+/**
+ * Traverses the AST node and checks for JSDoc comments.
+ *
+ * @param {TSESTree.Node} node - The AST node to traverse.
+ * @param {TSESTree.Comment[]} [comments] - Optional array of comments associated with the node.
+ */
     private traverse(node: TSESTree.Node, comments?: TSESTree.Comment[]): void {
         if (this.shouldHaveJSDoc(node)) {
             const jsDocComment = this.getJSDocComment(node, comments || []);
@@ -46,20 +64,44 @@ export class JsDocAnalyzer {
         });
     }
 
-    /**
-     * Checks if a node should have JSDoc documentation
-     */
+/**
+ * Check if the given node should have JSDoc comments.
+ * @param {TSESTree.Node} node - The node to check
+ * @returns {boolean} True if the node should have JSDoc comments, false otherwise
+ */
     public shouldHaveJSDoc(node: TSESTree.Node): boolean {
         return (
             node.type === 'FunctionDeclaration' ||
-            node.type === 'ClassDeclaration' ||
+            this.isClassNode(node) ||
             node.type === 'MethodDefinition'
         );
     }
 
-    /**
-     * Gets the JSDoc comment for a node if it exists
-     */
+/**
+ * Check if the given node is a class node.
+ * 
+ * @param {TSESTree.Node} node - The node to check
+ * @returns {boolean} Returns true if the node is a class node, false otherwise
+ */
+    public isClassNode(node: TSESTree.Node): boolean {
+        if (node.type === 'ClassDeclaration') {
+            return true;
+        }
+
+        if (node.type === 'ExportNamedDeclaration' && node.declaration?.type === 'ClassDeclaration') {
+            return true;
+        }
+
+        return false;
+    }
+
+/**
+ * Retrieves the JSDoc comment associated with the given node from the provided comments array.
+ * 
+ * @param {TSESTree.Node} node The node for which to retrieve the JSDoc comment.
+ * @param {TSESTree.Comment[]} comments Array of comments to search for the JSDoc comment.
+ * @returns {string | undefined} The JSDoc comment if found, otherwise undefined.
+ */
     public getJSDocComment(node: TSESTree.Node, comments: TSESTree.Comment[]): string | undefined {
         if (!this.shouldHaveJSDoc(node)) {
             return undefined;
@@ -76,6 +118,12 @@ export class JsDocAnalyzer {
         })?.value;
     }
 
+/**
+ * Returns the start and end location of the given Node.
+ * 
+ * @param {TSESTree.Node} node - The Node to get location from.
+ * @returns {Location} The start and end location of the Node.
+ */
     public getNodeLocation(node: TSESTree.Node): Location {
         return {
             start: node.loc.start.line,
@@ -83,6 +131,12 @@ export class JsDocAnalyzer {
         };
     }
 
+/**
+ * Retrieves all methods of a specific class or all classes in a given file.
+ * @param filePath - The path of the file to parse.
+ * @param className - The name of the class to retrieve methods from. Optional.
+ * @returns An array of MethodDefinition nodes representing the methods found.
+ */
     public getClassMethods(filePath: string, className?: string): TSESTree.MethodDefinition[] {
         const ast = this.typeScriptParser.parse(filePath);
         if (!ast) return [];
