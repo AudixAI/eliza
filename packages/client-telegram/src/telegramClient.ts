@@ -4,6 +4,10 @@ import { IAgentRuntime, elizaLogger } from "@ai16z/eliza";
 import { MessageManager } from "./messageManager.ts";
 import { getOrCreateRecommenderInBe } from "./getOrCreateRecommenderInBe.ts";
 
+/**
+ * Class representing a Telegram client.
+ */
+ 
 export class TelegramClient {
     private bot: Telegraf<Context>;
     private runtime: IAgentRuntime;
@@ -12,6 +16,11 @@ export class TelegramClient {
     private backendToken;
     private tgTrader;
 
+/**
+ * Constructor for TelegramClient class.
+ * @param {IAgentRuntime} runtime - The runtime interface for the agent.
+ * @param {string} botToken - The token for the Telegram bot.
+ */
     constructor(runtime: IAgentRuntime, botToken: string) {
         elizaLogger.log("📱 Constructing new TelegramClient...");
         this.runtime = runtime;
@@ -23,6 +32,13 @@ export class TelegramClient {
         elizaLogger.log("✅ TelegramClient constructor completed");
     }
 
+/**
+   * Asynchronously starts the Telegram bot.
+   * Logs a message indicating the start of the bot.
+   * Calls initializeBot(), setupMessageHandlers(), and setupShutdownHandlers(). 
+   * If an error occurs during start-up, logs the error and throws it.
+   * @returns {Promise<void>} - A promise that resolves when the bot is started.
+   */
     public async start(): Promise<void> {
         elizaLogger.log("🚀 Starting Telegram bot...");
         try {
@@ -35,6 +51,10 @@ export class TelegramClient {
         }
     }
 
+/**
+ * Initializes the bot by launching it, getting bot info, and setting the bot for message management.
+ * @returns A promise that resolves when the bot is successfully initialized.
+ */
     private async initializeBot(): Promise<void> {
         this.bot.launch({ dropPendingUpdates: true });
         elizaLogger.log(
@@ -48,6 +68,11 @@ export class TelegramClient {
         this.messageManager.bot = this.bot;
     }
 
+/**
+ * Check whether the user's group is authorized based on the configuration settings.
+ * @param {Context} ctx - The context object representing the current message.
+ * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating whether the group is authorized.
+ */
     private async isGroupAuthorized(ctx: Context): Promise<boolean> {
         const config = this.runtime.character.clientConfig?.telegram;
         if (ctx.from?.id === ctx.botInfo?.id) {
@@ -75,6 +100,10 @@ export class TelegramClient {
         return true;
     }
 
+/**
+ * Sets up message handlers for the bot to handle different types of messages.
+ * Handles new chat members, regular messages, photos, documents, and catches any errors that occur.
+ */
     private setupMessageHandlers(): void {
         elizaLogger.log("Setting up message handler...");
 
@@ -157,6 +186,10 @@ export class TelegramClient {
         });
     }
 
+/**
+ * Sets up shutdown handlers for different process signals (SIGINT, SIGTERM, SIGHUP) 
+ * to gracefully shut down the Telegram bot.
+ */
     private setupShutdownHandlers(): void {
         const shutdownHandler = async (signal: string) => {
             elizaLogger.log(
@@ -179,6 +212,12 @@ export class TelegramClient {
         process.once("SIGHUP", () => shutdownHandler("SIGHUP"));
     }
 
+/**
+ * Asynchronously stops the Telegram bot.
+ * Logs a message before and after the bot is stopped.
+ * 
+ * @return {Promise<void>} A Promise that resolves when the bot has been stopped.
+ */
     public async stop(): Promise<void> {
         elizaLogger.log("Stopping Telegram bot...");
         await this.bot.stop();
