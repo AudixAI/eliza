@@ -100,9 +100,11 @@ export class DocumentationGenerator {
 
             // Load and store file content
             if (fileChange.status === 'added' && 'contents_url' in fileChange) {
+                console.log('Getting file content from GitHub API');
                 const fileContent = await this.getFileContent(fileChange.contents_url);
                 this.fileContents.set(filePath, fileContent);
             } else {
+                console.log('Getting file content from local file system');
                 const fileContent = fs.readFileSync(filePath, 'utf-8');
                 this.fileContents.set(filePath, fileContent);
             }
@@ -260,9 +262,14 @@ export class DocumentationGenerator {
      * @returns {Promise<string>} The content of the file as a string
      */
     private async getFileContent(contentsUrl: string): Promise<string> {
-        const response = await fetch(contentsUrl);
-        const data = await response.json();
-        return Buffer.from(data.content, 'base64').toString('utf-8');
+        try {
+            const response = await fetch(contentsUrl);
+            const data = await response.json();
+            return Buffer.from(data.content, 'base64').toString('utf-8');
+        } catch (error) {
+            console.error('Error fetching file content from GitHub API, ensure the PR has been merged');
+            return '';
+        }
     }
 
     /**
@@ -296,7 +303,7 @@ export class DocumentationGenerator {
                 body: content.body
             };
         } catch (error) {
-            console.error('Error parsing AI response:', error);
+            console.error('Error parsing AI response for PR content generation, using default values');
             return {
                 title: `docs: Add JSDoc documentation${pullNumber ? ` for PR #${pullNumber}` : ''}`,
                 body: this.generateDefaultPRBody()
