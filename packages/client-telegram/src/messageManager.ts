@@ -156,12 +156,22 @@ export type InterestChats = {
     };
 };
 
+/**
+ * Class representing a MessageManager for handling incoming messages and generating responses.
+ * @class
+ */
 export class MessageManager {
     public bot: Telegraf<Context>;
     private runtime: IAgentRuntime;
     private interestChats: InterestChats = {};
     private teamMemberUsernames: Map<string, string> = new Map();
 
+/**
+ * Constructor for creating a new instance of a class.
+ * 
+ * @param {Telegraf<Context>} bot - The Telegraf instance used for bot operations.
+ * @param {IAgentRuntime} runtime - The runtime environment for the agent.
+ */
     constructor(bot: Telegraf<Context>, runtime: IAgentRuntime) {
         this.bot = bot;
         this.runtime = runtime;
@@ -171,6 +181,13 @@ export class MessageManager {
         );
     }
 
+/**
+ * Initializes the usernames of team members for the current character's Telegram instance.
+ * If the character is not part of a team or if there are no team agent IDs specified, the function will not proceed.
+ * The function iterates through each team agent ID, retrieves the corresponding chat from Telegram, and caches the username if available.
+ * If an error occurs while fetching the username for a team member, it will be logged and the function will continue with the next member.
+ * @returns Promise<void>
+ */
     private async _initializeTeamMemberUsernames(): Promise<void> {
         if (!this.runtime.character.clientConfig?.telegram?.isPartOfTeam) return;
 
@@ -189,14 +206,31 @@ export class MessageManager {
         }
     }
 
+/**
+ * Retrieves the username of a team member based on their ID.
+ * 
+ * @param {string} id - The ID of the team member.
+ * @returns {string | undefined} The username of the team member if found, otherwise undefined.
+ */
     private _getTeamMemberUsername(id: string): string | undefined {
         return this.teamMemberUsernames.get(id);
     }
 
+/**
+ * Normalize a user ID by removing any non-numeric characters and converting it to a string.
+ * 
+ * @param {string | number} id The user ID to normalize.
+ * @returns {string} The normalized user ID.
+ */
     private _getNormalizedUserId(id: string | number): string {
         return id.toString().replace(/[^0-9]/g, '');
     }
 
+/**
+ * Check if the given user is a team member based on their user ID.
+ * @param {string | number} userId - The user ID to check
+ * @returns {boolean} - Returns true if the user is a team member, false otherwise
+ */
     private _isTeamMember(userId: string | number): boolean {
         const teamConfig = this.runtime.character.clientConfig?.telegram;
         if (!teamConfig?.isPartOfTeam || !teamConfig.teamAgentIds) return false;
@@ -207,10 +241,19 @@ export class MessageManager {
         );
     }
 
+/**
+ * Checks if the bot is the team leader.
+ * @returns {boolean} True if the bot is the team leader, false otherwise.
+ */
     private _isTeamLeader(): boolean {
         return this.bot.botInfo?.id.toString() === this.runtime.character.clientConfig?.telegram?.teamLeaderId;
     }
 
+/**
+ * Check if the content contains keywords related to team coordination.
+ * @param {string} content - The text content to check.
+ * @returns {boolean} - True if the content contains keywords related to team coordination, false otherwise.
+ */
     private _isTeamCoordinationRequest(content: string): boolean {
         const contentLower = content.toLowerCase();
         return TEAM_COORDINATION.KEYWORDS?.some(keyword =>
@@ -218,6 +261,14 @@ export class MessageManager {
         );
     }
 
+/**
+ * Check whether the content of a message is relevant to a team member based on certain criteria.
+ *
+ * @param {string} content - The content of the message to analyze.
+ * @param {string} chatId - The ID of the chat where the message is from.
+ * @param {Memory | null} lastAgentMemory - The memory of the last message sent by the agent, if available.
+ * @returns {boolean} - True if the message is relevant to the team member, false otherwise.
+ */
     private _isRelevantToTeamMember(content: string, chatId: string, lastAgentMemory: Memory | null = null): boolean {
         const teamConfig = this.runtime.character.clientConfig?.telegram;
 
@@ -247,6 +298,13 @@ export class MessageManager {
         );
     }
 
+/**
+ * Analyzes the similarity of the current message context with the previous message context.
+ * @param {string} currentMessage - The current message to analyze.
+ * @param {MessageContext} [previousContext] - The previous message context to compare with.
+ * @param {string} [agentLastMessage] - The last message sent by the agent.
+ * @returns {Promise<number>} A number representing the similarity score between the current and previous message context.
+ */
     private async _analyzeContextSimilarity(currentMessage: string, previousContext?: MessageContext, agentLastMessage?: string): Promise<number> {
         if (!previousContext) return 1;
 
@@ -262,6 +320,12 @@ export class MessageManager {
         return similarity * timeWeight;
     }
 
+/**
+ * Check if the bot should respond based on the context of the message.
+ * @param {Message} message - The incoming message object.
+ * @param {InterestChats[string]} chatState - The chat state for the corresponding interest.
+ * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the bot should respond.
+ */
     private async _shouldRespondBasedOnContext(message: Message, chatState: InterestChats[string]): Promise<boolean> {
         const messageText = 'text' in message ? message.text :
                            'caption' in message ? (message as any).caption : '';
@@ -314,6 +378,12 @@ export class MessageManager {
         return contextSimilarity >= similarityThreshold;
     }
 
+/**
+ * Checks if the given message is intended for the bot.
+ * 
+ * @param {Message} message - The message to check
+ * @returns {boolean} Returns true if the message is intended for the bot, false otherwise
+ */
     private _isMessageForMe(message: Message): boolean {
         const botUsername = this.bot.botInfo?.username;
         if (!botUsername) return false;
@@ -331,6 +401,11 @@ export class MessageManager {
     }
 
 
+/**
+ * Check the interest level of a chat based on the last message sent.
+ * @param {string} chatId - The ID of the chat to check.
+ * @returns {boolean} Returns true if the chat is still interesting, false otherwise.
+ */
     private _checkInterest(chatId: string): boolean {
         const chatState = this.interestChats[chatId];
         if (!chatState) return false;
@@ -364,6 +439,12 @@ export class MessageManager {
     }
 
     // Process image messages and generate descriptions
+/**
+ * Processes the image received in a Telegram message to extract description.
+ * 
+ * @param {Message} message The Telegram message containing the image.
+ * @returns {Promise<{ description: string } | null>} An object with the image description or null if no image found.
+ */
     private async processImage(
         message: Message
     ): Promise<{ description: string } | null> {
@@ -405,6 +486,12 @@ export class MessageManager {
     }
 
     // Decide if the bot should respond to the message
+/**
+ * Determines whether the bot should respond to a message based on various conditions.
+ * @param {Message} message - The message received by the bot.
+ * @param {State} state - The current state of the bot.
+ * @returns {Promise<boolean>} A boolean indicating whether the bot should respond to the message.
+ */
     private async _shouldRespond(
         message: Message,
         state: State
@@ -578,6 +665,14 @@ export class MessageManager {
     }
 
     // Send long messages in chunks
+/**
+ * Sends a message in chunks to the specified context.
+ *
+ * @param {Context} ctx - The context to send the message in.
+ * @param {string} content - The content of the message to be sent.
+ * @param {number} [replyToMessageId] - The message ID to reply to.
+ * @returns {Promise<Message.TextMessage[]>} - An array of sent messages.
+ */
     private async sendMessageInChunks(
         ctx: Context,
         content: string,
@@ -606,6 +701,12 @@ export class MessageManager {
     }
 
     // Split message into smaller parts
+/**
+ * Splits a given text message into multiple chunks based on a maximum message length.
+ * 
+ * @param {string} text - The text message to be split into chunks.
+ * @returns {string[]} An array of strings representing the split message chunks.
+ */
     private splitMessage(text: string): string[] {
         const chunks: string[] = [];
         let currentChunk = "";
@@ -625,6 +726,13 @@ export class MessageManager {
     }
 
     // Generate a response using AI
+/**
+ * Generate a response for a given message based on the context.
+ * @param {Memory} message - The message to generate a response for.
+ * @param {State} _state - The state of the system (unused).
+ * @param {string} context - The context for generating the response.
+ * @returns {Promise<Content>} - The generated response content.
+ */
     private async _generateResponse(
         message: Memory,
         _state: State,
@@ -654,6 +762,12 @@ export class MessageManager {
     }
 
     // Main handler for incoming messages
+/**
+ * Handles incoming messages and processes them accordingly based on the configured settings.
+ * 
+ * @param {Context} ctx The context object containing information about the incoming message.
+ * @returns {Promise<void>} A promise that resolves once the message is handled.
+ */
     public async handleMessage(ctx: Context): Promise<void> {
         if (!ctx.message || !ctx.from) {
             return; // Exit if no message or sender info
