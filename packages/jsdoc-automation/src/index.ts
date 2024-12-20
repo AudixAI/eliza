@@ -9,21 +9,12 @@ import { GitManager } from './GitManager.js';
 
 /**
  * Main function for generating documentation.
- * This function creates instances of necessary classes
- * such as Configuration, GitManager, DirectoryTraversal,
- * TypeScriptParser, JsDocAnalyzer, AIService, JsDocGenerator,
- * and DocumentationGenerator. It then loads the configuration,
- * gets the files in a pull request if specified in the configuration,
- * sets up directory traversal, parses TypeScript files,
- * analyzes JSDoc comments, and generates documentation using
- * an AI service. If an error occurs during the process,
- * it logs the error and exits the process with code 1.
+ * Uses configuration initialized from the GitHub workflow file.
  * @async
  */
 async function main() {
     try {
         const configuration = new Configuration();
-        configuration.load();
 
         const gitManager = new GitManager({
             owner: configuration.repository.owner,
@@ -31,16 +22,16 @@ async function main() {
         });
 
         let prFiles: string[] = [];
-        if (typeof configuration.repository.pullNumber === 'number') {
+        if (typeof configuration.repository.pullNumber === 'number'
+            && !isNaN(configuration.repository.pullNumber)
+        ) {
             console.log('Pull Request Number: ', configuration.repository.pullNumber);
             const files = await gitManager.getFilesInPullRequest(configuration.repository.pullNumber);
             prFiles = files.map((file) => file.filename);
         }
 
         const directoryTraversal = new DirectoryTraversal(
-            configuration.targetDirectory,
-            configuration.excludedDirectories,
-            configuration.excludedFiles,
+            configuration,
             prFiles
         );
         const typeScriptParser = new TypeScriptParser();

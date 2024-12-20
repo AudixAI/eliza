@@ -1,5 +1,4 @@
 import { DirectoryTraversal } from './DirectoryTraversal.js';
-import { TypeScriptFileIdentifier } from './TypeScriptFileIdentifier.js';
 import { TypeScriptParser } from './TypeScriptParser.js';
 import { JsDocAnalyzer } from './JsDocAnalyzer.js';
 import { JsDocGenerator } from './JsDocGenerator.js';
@@ -47,7 +46,7 @@ export class DocumentationGenerator {
 
     /**
      * Asynchronously generates JSDoc comments for the TypeScript files based on the given pull request number or full mode.
-     * 
+     *
      * @param pullNumber - Optional. The pull request number to generate JSDoc comments for.
      * @returns A promise that resolves once the JSDoc generation process is completed.
      */
@@ -58,24 +57,35 @@ export class DocumentationGenerator {
         if (pullNumber) {
             const prFiles = await this.gitManager.getFilesInPullRequest(pullNumber);
             fileChanges = prFiles.filter(file => {
-                const normalizedPath = path.normalize(file.filename);
-                const rootDir = this.configuration.targetDirectory;
-                const isInRootDir = rootDir === './' || rootDir === '.' || normalizedPath.startsWith(rootDir);
+                // Convert PR file path (which is repo-relative) to absolute path
+                const absolutePath = this.configuration.toAbsolutePath(file.filename);
 
-                const isExcluded = this.configuration.excludedDirectories.some(dir => {
-                    const normalizedExcludeDir = path.normalize(dir);
-                    return normalizedPath.includes(normalizedExcludeDir);
-                }) || this.configuration.excludedFiles.some(excludedFile => {
-                    const normalizedExcludeFile = path.normalize(excludedFile);
-                    return normalizedPath.endsWith(normalizedExcludeFile);
-                });
+                // Check if file is in target directory
+                const isInTargetDir = absolutePath.startsWith(this.configuration.absolutePath);
 
-                return isInRootDir && !isExcluded;
+                // Get path relative to target directory for exclusion checking
+                const relativeToTarget = path.relative(
+                    this.configuration.absolutePath,
+                    absolutePath
+                );
+
+                // Check exclusions
+                const isExcluded =
+                    // Check excluded directories
+                    this.configuration.excludedDirectories.some(dir =>
+                        relativeToTarget.split(path.sep)[0] === dir
+                    ) ||
+                    // Check excluded files
+                    this.configuration.excludedFiles.some(excludedFile =>
+                        path.basename(absolutePath) === excludedFile
+                    );
+
+                return isInTargetDir && !isExcluded;
             });
         } else {
             const typeScriptFiles = this.directoryTraversal.traverse();
             fileChanges = typeScriptFiles.map((file) => ({
-                filename: file,
+                filename: this.configuration.toRelativePath(file),
                 status: 'modified',
             }));
         }
@@ -84,7 +94,7 @@ export class DocumentationGenerator {
         for (const fileChange of fileChanges) {
             if (fileChange.status === 'deleted') continue;
 
-            const filePath = path.join(fileChange.filename);
+            const filePath = this.configuration.toAbsolutePath(fileChange.filename);
             console.log(`Processing file: ${filePath}`, 'resetting file offsets', 'from ', this.fileOffsets.get(filePath), 'to 0');
             this.fileOffsets.set(filePath, 0);
 
@@ -143,8 +153,6 @@ export class DocumentationGenerator {
                         continue;
                     }
 
-                    console.log('processing class', node);
-
                     for (const classElement of classBody.body) {
                         if (classElement.type === 'MethodDefinition') {
                             const methodJsDocComment = this.jsDocAnalyzer.getJSDocComment(classElement, ast.comments || []);
@@ -192,7 +200,7 @@ export class DocumentationGenerator {
                 for (const [filePath, content] of this.fileContents) {
                     await this.gitManager.commitFile(
                         this.branchName,
-                        filePath,
+                        this.configuration.toRelativePath(filePath),
                         content,
                         `docs: Add JSDoc documentation to ${path.basename(filePath)}`
                     );
@@ -247,7 +255,7 @@ export class DocumentationGenerator {
 
     /**
      * Retrieves the content of a file from the provided URL.
-     * 
+     *
      * @param {string} contentsUrl - The URL of the file contents
      * @returns {Promise<string>} The content of the file as a string
      */
@@ -298,7 +306,7 @@ export class DocumentationGenerator {
 
     /**
      * Generates the default pull request body for adding JSDoc documentation to TypeScript files.
-     * 
+     *
      * @returns {string} The default pull request body containing information about the changes made.
      */
     private generateDefaultPRBody(): string {
