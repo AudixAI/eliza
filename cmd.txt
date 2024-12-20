@@ -1,0 +1,16 @@
+For ai16 Eliza:
+ 1001  git remote add upstream git@github.com:ai16z/eliza.git
+ -------------
+ 1002  git fetch upstream
+ 1003  git checkout -b test-branch upstream/main
+ 1004  git commit -m "test commit"
+ 1005  git push origin test-branch
+
+
+clone jotbot
+- Test
+copy TS code -> Eliza
+- Give Jotbot credit in PR description
+
+
+git checkout -b test-branch upstream/main

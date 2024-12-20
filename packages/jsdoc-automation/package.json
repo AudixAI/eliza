@@ -1,0 +1,27 @@
+{
+    "name": "plugin-audix",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.ts",
+    "scripts": {
+        "start": "node --loader ts-node/esm src/index.ts",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@langchain/openai": "^0.3.16",
+        "@octokit/rest": "^21.0.2",
+        "@types/node": "^22.10.2",
+        "dotenv": "^16.4.7",
+        "langchain": "^0.3.7"
+    },
+    "devDependencies": {
+        "@typescript-eslint/parser": "^8.18.1",
+        "@typescript-eslint/types": "^8.18.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.7.2"
+    },
+    "type": "module"
+}
