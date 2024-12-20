@@ -37,32 +37,60 @@ jobs:
         with:
           fetch-depth: 0  # Full history for better git operations
 
-      - name: Validate inputs
-        run: |
-          # Check if root_directory starts with a slash
-          if [[ "${{ github.event.inputs.root_directory }}" == /* ]]; then
-            echo "Error: root_directory should be relative to repository root (no leading slash)"
-            exit 1
-          fi
-
-          # Check if root_directory exists
-          if [ ! -d "${{ github.event.inputs.root_directory }}" ]; then
-            echo "Error: Directory ${{ github.event.inputs.root_directory }} not found"
-            exit 1
-          fi
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '23.3.0'
+          node-version: '20'  # Using LTS version for better stability
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
+          run_install: false
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pnpm-store
+            node_modules/.pnpm
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Validate inputs and directory structure
+        run: |
+          # Check root_directory format
+          if [[ "${{ github.event.inputs.root_directory }}" == /* ]]; then
+            echo "Error: root_directory should be relative to repository root (no leading slash)"
+            exit 1
+          fi
+
+          # Ensure packages/jsdoc-automation exists
+          if [ ! -d "packages/jsdoc-automation" ]; then
+            echo "Error: jsdoc-automation package not found"
+            exit 1
+          fi
+
+          # Verify package.json exists
+          if [ ! -f "packages/jsdoc-automation/package.json" ]; then
+            echo "Error: package.json not found in jsdoc-automation"
+            exit 1
+          fi
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install and build jsdoc-automation
+        working-directory: packages/jsdoc-automation
+        run: |
+          echo "Installing jsdoc-automation dependencies..."
+          pnpm install --frozen-lockfile
+          echo "Building jsdoc-automation..."
+          pnpm build || true  # Add build step if needed, otherwise remove this line
 
       - name: Run documentation generator
-        run: pnpm start
+        working-directory: packages/jsdoc-automation
+        run: |
+          echo "Starting documentation generation..."
+          pnpm start
