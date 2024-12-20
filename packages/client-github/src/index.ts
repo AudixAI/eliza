@@ -23,6 +23,11 @@ export interface GitHubConfig {
     token: string;
 }
 
+/**
+ * Represents a GitHub Client that interacts with a GitHub repository to handle operations such as initialization, creating memories from files, creating pull requests, and creating commits.
+ * @constructor
+ * @param {AgentRuntime} runtime - The agent runtime object.
+ */
 export class GitHubClient {
     private octokit: Octokit;
     private git: SimpleGit;
@@ -30,6 +35,10 @@ export class GitHubClient {
     private runtime: AgentRuntime;
     private repoPath: string;
 
+/**
+ * Constructor for the GitHubClient class.
+ * @param {AgentRuntime} runtime The runtime object for the agent.
+ */
     constructor(runtime: AgentRuntime) {
         this.runtime = runtime;
         this.config = {
@@ -49,6 +58,10 @@ export class GitHubClient {
         );
     }
 
+/**
+ * Asynchronously initializes the repository by creating the necessary directory,
+ * cloning or pulling the repository, and checking out a specified branch if provided.
+ */
     async initialize() {
         // Create repos directory if it doesn't exist
         await fs.mkdir(path.join(process.cwd(), ".repos", this.config.owner), {
@@ -73,6 +86,15 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates memories from files found within a specified path.
+ * Uses the configuration path if provided, otherwise defaults to the repository path.
+ * Reads each file, calculates the content hash, and creates a unique knowledgeId based on the repository, owner, and relative path.
+ * Checks if a memory with the same knowledgeId and matching content hash already exists before proceeding.
+ * Logs the process of creating knowledge for the associated character and relative path.
+ * Sets the knowledge with the generated knowledgeId and corresponding content, metadata, and attachments.
+ * @returns {Promise<void>}
+ */
     async createMemoriesFromFiles() {
         console.log("Create memories");
         const searchPath = this.config.path
@@ -125,6 +147,15 @@ export class GitHubClient {
         }
     }
 
+/**
+* Creates a pull request with the specified title, branch, files, and optional description.
+* 
+* @param {string} title - The title of the pull request.
+* @param {string} branch - The name of the branch to create for the pull request.
+* @param {Array<{path: string, content: string}>} files - An array of objects containing the path and content of each file to be added to the branch.
+* @param {string} [description] - Optional description for the pull request. If not provided, the title will be used.
+* @returns {Promise<any>} - A promise that resolves with the data of the created pull request.
+*/
     async createPullRequest(
         title: string,
         branch: string,
@@ -160,6 +191,13 @@ export class GitHubClient {
         return pr.data;
     }
 
+/**
+ * Creates a new commit with the specified message and files.
+ * 
+ * @param {string} message - The commit message.
+ * @param {Array<{ path: string; content: string }>} files - Array of objects representing the files to be committed.
+ * @returns {Promise<void>} A promise that resolves once the commit is complete.
+ */
     async createCommit(
         message: string,
         files: Array<{ path: string; content: string }>
