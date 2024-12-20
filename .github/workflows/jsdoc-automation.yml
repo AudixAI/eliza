@@ -50,8 +50,8 @@ jobs:
       - name: Update config file
         run: |
           # Convert comma-separated excluded directories to JSON array
-          EXCLUDED_DIRS_JSON=$(echo "${{ github.event.inputs.excluded_directories }}" | \
-            jq -R 'split(",") | map(sub("^\\s+|\\s+$"; ""))')
+            EXCLUDED_DIRS_JSON=$(echo "${{ github.event.inputs.excluded_directories }}" | \
+              jq -R 'split(",") | map(sub("^\\s+|\\s+$"; ""))')
 
           # Convert comma-separated reviewers to JSON array
           REVIEWERS_JSON=$(echo "${{ github.event.inputs.reviewers }}" | \
@@ -62,7 +62,7 @@ jobs:
              --arg rd "${{ github.event.inputs.root_directory }}" \
              --argjson ed "${EXCLUDED_DIRS_JSON}" \
              --argjson pr "${REVIEWERS_JSON}" \
-             '.repository.pullNumber = ($pn | tonumber) |
+             '.repository.pullNumber = if $pn == "" then null else ($pn | tonumber) end |
               .rootDirectory = $rd |
               .excludedDirectories = $ed |
               .pullRequestReviewers = $pr' \
