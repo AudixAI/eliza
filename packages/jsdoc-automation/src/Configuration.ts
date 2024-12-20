@@ -77,41 +77,53 @@ export class Configuration implements Omit<ConfigurationData, 'rootDirectory'> {
     }
 
     private loadConfiguration(): void {
-        // Use repo root to find workflow file
-        const workflowPath = join(this.repoRoot, '.github/workflows/jsdoc-automation.yml');
-        if (!fs.existsSync(workflowPath)) {
-            throw new Error(`Workflow file not found at ${workflowPath}`);
+        // First try to get from environment variables
+        const envRootDirectory = process.env.INPUT_ROOT_DIRECTORY;
+        let inputs;
+
+        if (envRootDirectory) {
+            // Use the provided input
+            const targetDir = envRootDirectory;
+            this._rootDirectory = {
+                absolute: path.resolve(this.repoRoot, targetDir),
+                relative: targetDir.replace(/^\/+/, '')
+            };
+        } else {
+            // Fall back to reading from workflow file
+            const workflowPath = join(this.repoRoot, '.github/workflows/jsdoc-automation.yml');
+            if (!fs.existsSync(workflowPath)) {
+                throw new Error(`Workflow file not found at ${workflowPath}`);
+            }
+            const workflowContent = fs.readFileSync(workflowPath, 'utf8');
+            const workflow = yaml.parse(workflowContent);
+            inputs = workflow.on.workflow_dispatch.inputs;
+
+            if (!inputs?.root_directory?.default) {
+                throw new Error('No root directory found in configuration');
+            }
+
+            const targetDir = inputs.root_directory.default;
+            this._rootDirectory = {
+                absolute: path.resolve(this.repoRoot, targetDir),
+                relative: targetDir.replace(/^\/+/, '')
+            };
         }
-        const workflowContent = fs.readFileSync(workflowPath, 'utf8');
-        const workflow = yaml.parse(workflowContent);
-        const inputs = workflow.on.workflow_dispatch.inputs;
 
-        if (!inputs) {
-            throw new Error('No workflow inputs found in configuration');
-        }
-
-        // Get the target directory path (e.g., 'packages/core/src')
-        const targetDir = inputs.root_directory.default;
-
-        // Set up root directory paths
-        this._rootDirectory = {
-            absolute: path.resolve(this.repoRoot, targetDir),
-            relative: targetDir.replace(/^\/+/, '') // Remove leading slashes if any
-        };
-
-        // Handle excluded directories
+        // Similarly for other inputs, using optional chaining to avoid undefined errors
         this.excludedDirectories = this.parseCommaSeparatedInput(
-            inputs.excluded_directories?.default,
+            process.env.INPUT_EXCLUDED_DIRECTORIES || inputs?.excluded_directories?.default,
             []
         );
 
         this.pullRequestReviewers = this.parseCommaSeparatedInput(
-            inputs.reviewers?.default,
+            process.env.INPUT_REVIEWERS || inputs?.reviewers?.default,
             []
         );
 
-        if (inputs.pull_number) {
-            this.repository.pullNumber = parseInt(inputs.pull_number);
+        if (process.env.INPUT_PULL_NUMBER) {
+            this.repository.pullNumber = parseInt(process.env.INPUT_PULL_NUMBER);
+        } else if (inputs?.pull_number?.default) {
+            this.repository.pullNumber = parseInt(inputs.pull_number.default);
         }
     }
 
