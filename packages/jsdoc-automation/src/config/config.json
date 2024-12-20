@@ -4,7 +4,7 @@
     "excludedFiles": [],
     "commitMessageTemplate": "",
     "pullRequestTemplate": "",
-    "targetDirectory": "./packages/core/src",
+    "targetDirectory": "packages/core/src",
     "excludedDirectories": [
         "node_modules"
     ],
