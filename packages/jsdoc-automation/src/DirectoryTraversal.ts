@@ -6,9 +6,10 @@ import * as path from 'path';
  * @class DirectoryTraversal
  */
 export class DirectoryTraversal {
+    private repositoryRoot: string;
     /**
      * Constructor for a class that represents a directory structure.
-     * 
+     *
      * @param {string} targetDirectory - The root directory of the structure.
      * @param {string[]} [excludedDirectories=[]] - Directories to be excluded from the structure.
      * @param {string[]} [excludedFiles=[]] - Files to be excluded from the structure.
@@ -19,13 +20,19 @@ export class DirectoryTraversal {
         public excludedDirectories: string[] = [],
         public excludedFiles: string[] = [],
         public prFiles: string[] = []
-    ) { }
+    ) {
+        // Find the repository root (where the .git directory is)
+        this.repositoryRoot = this.findRepositoryRoot(process.cwd());
+
+        // Normalize the target directory path relative to repository root
+        this.targetDirectory = this.resolveTargetDirectory(targetDirectory);
+    }
 
     /**
      * Traverses the directory based on PRFiles or all files in the root directory.
      * If PRFiles are detected, processes only files from the PR.
      * Otherwise, scans all files in the root directory for TypeScript files.
-     * 
+     *
      * @returns An array of string containing the files to process.
      */
     public traverse(): string[] {
@@ -87,4 +94,32 @@ export class DirectoryTraversal {
             this.excludedFiles.includes(path.basename(filePath))
         );
     }
+
+    private findRepositoryRoot(startPath: string): string {
+        let currentPath = startPath;
+        while (currentPath !== path.parse(currentPath).root) {
+            if (fs.existsSync(path.join(currentPath, '.github'))) {
+                return currentPath;
+            }
+            currentPath = path.dirname(currentPath);
+        }
+        // If no .github directory is found, use current working directory
+        console.warn('Warning: Could not find repository root with .github directory, using current directory');
+        return process.cwd();
+    }
+
+    private resolveTargetDirectory(targetDir: string): string {
+        // Remove leading slash if present
+        targetDir = targetDir.replace(/^\//, '');
+        // Resolve the path relative to repository root
+        const resolvedPath = path.resolve(this.repositoryRoot, targetDir);
+
+        // Verify the path exists
+        if (!fs.existsSync(resolvedPath)) {
+            throw new Error(`Target directory does not exist: ${resolvedPath}`);
+        }
+
+        return resolvedPath;
+    }
+
 }
