@@ -9,7 +9,7 @@ on:
       root_directory:
         description: 'Root Directory'
         required: true
-        default: '/packages/core/src'
+        default: './packages/core/src'
       excluded_directories:
         description: 'Excluded Directories (comma-separated)'
         required: true
