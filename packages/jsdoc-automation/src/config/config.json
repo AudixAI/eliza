@@ -4,17 +4,14 @@
     "excludedFiles": [],
     "commitMessageTemplate": "",
     "pullRequestTemplate": "",
-    "rootDirectory": "/packages/jsdoc-automation/test",
+    "targetDirectory": "/packages/core/src",
     "excludedDirectories": [
         "node_modules"
     ],
-    "aiService": {
-        "apiKey": "your-api-key"
-    },
     "repository": {
         "owner": "AudixAI",
-        "name": "plugin-audix",
-        "pullNumber": 16
+        "name": "eliza",
+        "pullNumber": null
     },
     "branch": "main",
     "committedFiles": [],

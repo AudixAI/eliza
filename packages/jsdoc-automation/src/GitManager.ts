@@ -13,11 +13,17 @@ interface CreatePullRequestOptions {
     reviewers?: string[];
 }
 
+/**
+ * Manages operations related to interacting with a Git repository using the GitHub API.
+ */
 export class GitManager {
     private octokit: Octokit;
 
-    // Need to add private accessToken?: string - for None Public Repos
-    //{ auth: accessToken }
+    /**
+     * Constructor for a class that initializes the Octokit instance with the provided Repository and checks if the GITHUB_ACCESS_TOKEN is set in the environment.
+     * @param {Repository} repository - The repository instance to use
+     * @throws {Error} Throws an error if the GITHUB_ACCESS_TOKEN is not set
+     */
     constructor(public repository: Repository) {
         if (!process.env.GITHUB_ACCESS_TOKEN) {
             throw new Error('GITHUB_ACCESS_TOKEN is not set');
@@ -27,10 +33,11 @@ export class GitManager {
         });
     }
 
-    public commit(files: string[], message: string): void {
-        // Commit the specified files with the given commit message
-    }
-
+    /**
+     * Retrieve files in a specific pull request.
+     * @param {number} pullNumber - The number of the pull request to get files from.
+     * @returns {Promise<PrModeFileChange[]>} - Array of objects representing file changes in the pull request.
+     */
     public async getFilesInPullRequest(pullNumber: number): Promise<PrModeFileChange[]> {
         const { data } = await this.octokit.pulls.listFiles({
             owner: this.repository.owner,
@@ -48,6 +55,13 @@ export class GitManager {
         }));
     }
 
+    /**
+     * Creates a new branch in the GitHub repository using the given branch name and base branch.
+     * 
+     * @param {string} branchName - The name of the new branch to be created.
+     * @param {string} baseBranch - The name of the branch to base the new branch off of.
+     * @returns {Promise<void>} - A Promise that resolves when the branch is successfully created.
+     */
     public async createBranch(branchName: string, baseBranch: string): Promise<void> {
         await this.octokit.git.createRef({
             owner: this.repository.owner,
@@ -61,6 +75,15 @@ export class GitManager {
         });
     }
 
+    /**
+     * Asynchronously commits a file to a repository using the GitHub API.
+     * 
+     * @param {string} branchName - The name of the branch to commit the file to.
+     * @param {string} filePath - The path of the file to commit.
+     * @param {string} content - The content of the file to commit.
+     * @param {string} message - The commit message.
+     * @returns {Promise<void>} A promise that resolves when the file is successfully committed.
+     */
     public async commitFile(branchName: string, filePath: string, content: string, message: string): Promise<void> {
         try {
             const { data } = await this.octokit.repos.getContent({
@@ -96,6 +119,11 @@ export class GitManager {
         }
     }
 
+    /**
+     * Create a pull request using the provided options.
+     * @param {CreatePullRequestOptions} options - The options for creating the pull request.
+     * @returns {Promise<void>} A Promise that resolves once the pull request is successfully created.
+     */
     public async createPullRequest(options: CreatePullRequestOptions): Promise<void> {
         try {
             // Create the pull request

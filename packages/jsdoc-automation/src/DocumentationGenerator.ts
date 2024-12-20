@@ -11,69 +11,56 @@ import { Configuration } from './Configuration.js';
 import path from 'path';
 import { AIService } from './AIService.js';
 
-
+/**
+ * Class representing a Documentation Generator.
+ *
+ */
 export class DocumentationGenerator {
     public missingJsDocQueue: ASTQueueItem[] = [];
     public existingJsDocQueue: ASTQueueItem[] = [];
     private hasChanges: boolean = false;
     private fileContents: Map<string, string> = new Map();
     private branchName: string = '';
+    private fileOffsets: Map<string, number> = new Map();
 
+    /**
+     * Constructor for initializing the object with necessary dependencies.
+     *
+     * @param {DirectoryTraversal} directoryTraversal - Instance of DirectoryTraversal class.
+     * @param {TypeScriptParser} typeScriptParser - Instance of TypeScriptParser class.
+     * @param {JsDocAnalyzer} jsDocAnalyzer - Instance of JsDocAnalyzer class.
+     * @param {JsDocGenerator} jsDocGenerator - Instance of JsDocGenerator class.
+     * @param {GitManager} gitManager - Instance of GitManager class.
+     * @param {Configuration} configuration - Instance of Configuration class.
+     * @param {AIService} aiService - Instance of AIService class.
+     */
 
     constructor(
         public directoryTraversal: DirectoryTraversal,
-        // public typeScriptFileIdentifier: TypeScriptFileIdentifier,
         public typeScriptParser: TypeScriptParser,
         public jsDocAnalyzer: JsDocAnalyzer,
         public jsDocGenerator: JsDocGenerator,
         public gitManager: GitManager,
-        // public githubActionsWorkflow: GithubActionsWorkflow,
         public configuration: Configuration,
         public aiService: AIService
     ) { }
 
-    private async insertJSDocComments(queueItem: ASTQueueItem): Promise<void> {
-        if (queueItem.nodeType === 'ClassDeclaration') {
-            // First process all method JSDoc comments - but don't insert yet
-            const methodComments = await this.processClassMethods(queueItem);
-
-            // First insert the class comment
-            const classComment = await this.jsDocGenerator.generateClassComment(queueItem, methodComments);
-            await this.updateFileWithJSDoc(queueItem.filePath, classComment, queueItem.startLine);
-
-            // Now process and insert each method comment
-            const methods = this.jsDocAnalyzer.getClassMethods(queueItem.filePath, queueItem.className);
-            for (const methodNode of methods) {
-                const methodName = this.getMethodName(methodNode);
-                if (!methodName || !methodComments[methodName]) continue;
-
-                const startLine = methodNode.loc?.start.line || 0;
-                // Add offset for the class comment we just inserted
-                const adjustedLine = startLine + classComment.split('\n').length - 1;
-                await this.updateFileWithJSDoc(queueItem.filePath, methodComments[methodName], adjustedLine);
-            }
-        } else {
-            // For non-class nodes, simply insert the JSDoc comment
-            const comment = await this.jsDocGenerator.generateComment(queueItem);
-            await this.updateFileWithJSDoc(queueItem.filePath, comment, queueItem.startLine);
-        }
-    }
-
+    /**
+     * Asynchronously generates JSDoc comments for the TypeScript files based on the given pull request number or full mode.
+     * 
+     * @param pullNumber - Optional. The pull request number to generate JSDoc comments for.
+     * @returns A promise that resolves once the JSDoc generation process is completed.
+     */
     public async generate(pullNumber?: number): Promise<void> {
         let fileChanges: PrModeFileChange[] | FullModeFileChange[] = [];
+        this.fileOffsets.clear();
 
-
-        // If in PR mode, only process files from the PR that are within rootDir and not excluded
         if (pullNumber) {
             const prFiles = await this.gitManager.getFilesInPullRequest(pullNumber);
             fileChanges = prFiles.filter(file => {
                 const normalizedPath = path.normalize(file.filename);
-                console.log('Checking file:', normalizedPath);
-
-                // All files are considered in root if rootDirectory is ./ or .
-                const rootDir = this.configuration.rootDirectory;
+                const rootDir = this.configuration.targetDirectory;
                 const isInRootDir = rootDir === './' || rootDir === '.' || normalizedPath.startsWith(rootDir);
-                console.log('Root directory:', rootDir, 'isInRootDir:', isInRootDir);
 
                 const isExcluded = this.configuration.excludedDirectories.some(dir => {
                     const normalizedExcludeDir = path.normalize(dir);
@@ -82,15 +69,11 @@ export class DocumentationGenerator {
                     const normalizedExcludeFile = path.normalize(excludedFile);
                     return normalizedPath.endsWith(normalizedExcludeFile);
                 });
-                console.log('isExcluded:', isExcluded);
 
                 return isInRootDir && !isExcluded;
             });
-            console.log('Filtered PR files:', fileChanges);
         } else {
-            // Normal mode: process all TypeScript files in the root directory, besides excluded files
             const typeScriptFiles = this.directoryTraversal.traverse();
-            console.log('Full Mode TypeScript files:', typeScriptFiles);
             fileChanges = typeScriptFiles.map((file) => ({
                 filename: file,
                 status: 'modified',
@@ -99,11 +82,11 @@ export class DocumentationGenerator {
 
         // Process each TypeScript file
         for (const fileChange of fileChanges) {
-            if (fileChange.status === 'deleted') {
-                continue; // Skip deleted files
-            }
+            if (fileChange.status === 'deleted') continue;
 
-            const filePath = path.join(fileChange.filename); // todo - need? this.configuration.rootDirectory,
+            const filePath = path.join(fileChange.filename);
+            console.log(`Processing file: ${filePath}`, 'resetting file offsets', 'from ', this.fileOffsets.get(filePath), 'to 0');
+            this.fileOffsets.set(filePath, 0);
 
             // Load and store file content
             if (fileChange.status === 'added' && 'contents_url' in fileChange) {
@@ -114,26 +97,27 @@ export class DocumentationGenerator {
                 this.fileContents.set(filePath, fileContent);
             }
 
-
             const ast = this.typeScriptParser.parse(filePath);
-            if (!ast) continue;
-            // Analyze JSDoc comments
+            if (!ast || !ast.body) {
+                console.log('Invalid AST found for file', filePath);
+                continue;
+            }
+
             this.jsDocAnalyzer.analyze(ast);
 
+            // Process each node in the file
             for (const node of ast.body) {
+                if (!this.jsDocAnalyzer.shouldHaveJSDoc(node)) continue;
 
-                if (!this.jsDocAnalyzer.shouldHaveJSDoc(node)) {
-                    continue;
-                }
-
+                // Process the current node
                 const jsDocComment = this.jsDocAnalyzer.getJSDocComment(node, ast.comments || []);
                 const queueItem: ASTQueueItem = {
                     filePath: filePath,
                     startLine: node.loc?.start.line || 0,
                     endLine: node.loc?.end.line || 0,
                     nodeType: node.type,
-                    className: node.type === 'ClassDeclaration' ? node.id?.name : undefined,
-                    methodName: node.type === 'MethodDefinition' ? node.key.name : undefined,
+                    className: this.jsDocAnalyzer.isClassNode(node) ? node.id?.name : undefined,
+                    methodName: node.type === 'MethodDefinition' ? (node.key as TSESTree.Identifier).name : undefined,
                     code: this.getNodeCode(filePath, node),
                 };
 
@@ -143,30 +127,63 @@ export class DocumentationGenerator {
                 } else {
                     this.missingJsDocQueue.push(queueItem);
                 }
+
+                // If this is a class declaration, process its methods
+                if (this.jsDocAnalyzer.isClassNode(node)) {
+                    let classBody: TSESTree.ClassBody | null;
+
+                    if (node.type === 'ExportNamedDeclaration') {
+                        classBody = ((node as TSESTree.ExportNamedDeclaration).declaration as TSESTree.ClassDeclaration).body;
+                    } else {
+                        classBody = (node as TSESTree.ClassDeclaration).body;
+                    }
+
+                    if (!classBody) {
+                        console.log('No class body found for class', node.id?.name);
+                        continue;
+                    }
+
+                    console.log('processing class', node);
+
+                    for (const classElement of classBody.body) {
+                        if (classElement.type === 'MethodDefinition') {
+                            const methodJsDocComment = this.jsDocAnalyzer.getJSDocComment(classElement, ast.comments || []);
+                            const methodQueueItem: ASTQueueItem = {
+                                filePath: filePath,
+                                startLine: classElement.loc?.start.line || 0,
+                                endLine: classElement.loc?.end.line || 0,
+                                nodeType: classElement.type,
+                                className: node.id?.name,
+                                methodName: (classElement.key as TSESTree.Identifier).name,
+                                code: this.getNodeCode(filePath, classElement),
+                            };
+
+                            if (methodJsDocComment) {
+                                methodQueueItem.jsDoc = methodJsDocComment;
+                                this.existingJsDocQueue.push(methodQueueItem);
+                            } else {
+                                this.missingJsDocQueue.push(methodQueueItem);
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        // Process the AST queue
+        // Process nodes that need JSDoc
         if (this.missingJsDocQueue.length > 0) {
-            // Only create branch if we have missing JSDoc comments
-            // @note Create a new branch based off this.configuration.branch for documentation updates
             this.branchName = `docs-update-${pullNumber || 'full'}-${Date.now()}`;
             await this.gitManager.createBranch(this.branchName, this.configuration.branch);
 
-            // Sort queue to process non-class items first
-            this.missingJsDocQueue.sort((a, b) => {
-                if (a.nodeType === 'ClassDeclaration' && b.nodeType !== 'ClassDeclaration') return 1;
-                if (a.nodeType !== 'ClassDeclaration' && b.nodeType === 'ClassDeclaration') return -1;
-                return 0;
-            });
-
-            // Process the AST queue
-            // Process the AST queue
-            while (this.missingJsDocQueue.length > 0) {
-                const queueItem = this.missingJsDocQueue.shift();
-                if (!queueItem) continue;
-
-                await this.insertJSDocComments(queueItem);
+            // Process each node
+            for (const queueItem of this.missingJsDocQueue) {
+                let comment = '';
+                if (queueItem.className !== undefined) {
+                    comment = await this.jsDocGenerator.generateClassComment(queueItem);
+                } else {
+                    comment = await this.jsDocGenerator.generateComment(queueItem);
+                }
+                await this.updateFileWithJSDoc(queueItem.filePath, comment, queueItem.startLine);
                 this.hasChanges = true;
             }
 
@@ -181,10 +198,7 @@ export class DocumentationGenerator {
                     );
                 }
 
-                // Generate PR content using AI
                 const prContent = await this.generatePRContent(pullNumber);
-
-                // Create the pull request
                 await this.gitManager.createPullRequest({
                     title: prContent.title,
                     body: prContent.body,
@@ -197,58 +211,32 @@ export class DocumentationGenerator {
         }
     }
 
+    /**
+     * Updates a file with JSDoc at a specific position.
+     * @param {string} filePath - The path to the file to update.
+     * @param {string} jsDoc - The JSDoc to insert into the file.
+     * @param {number} insertLine - The line number where the JSDoc should be inserted.
+     * @returns {Promise<void>} - A Promise that resolves once the file has been updated.
+     */
     private async updateFileWithJSDoc(filePath: string, jsDoc: string, insertLine: number): Promise<void> {
         const content = this.fileContents.get(filePath) || '';
         const lines = content.split('\n');
-        const formattedJSDoc = jsDoc.trim() + '\n';  // Ensure single newline
-        lines.splice(insertLine - 1, 0, formattedJSDoc);
+        const currentOffset = this.fileOffsets.get(filePath) || 0;
+        const newLines = (jsDoc.match(/\n/g) || []).length + 1;
+        const adjustedLine = insertLine + currentOffset;
+
+        lines.splice(adjustedLine - 1, 0, jsDoc);
+        this.fileOffsets.set(filePath, currentOffset + newLines);
         this.fileContents.set(filePath, lines.join('\n'));
     }
 
-    private async processClassMethods(queueItem: ASTQueueItem): Promise<Record<string, string>> {
-        const className = queueItem.className;
-        const methodComments: Record<string, string> = {};
-
-        for (const methodNode of this.jsDocAnalyzer.getClassMethods(queueItem.filePath, className)) {
-            const methodName = this.getMethodName(methodNode);
-            if (!methodName) continue;
-
-            // Check existing JSDoc comments first
-            const existingNode = this.existingJsDocQueue.find(
-                node => node.className === className && node.methodName === methodName
-            );
-
-            if (existingNode && existingNode.jsDoc) {
-                methodComments[methodName] = existingNode.jsDoc;
-            } else {
-                const methodQueueItem: ASTQueueItem = {
-                    ...queueItem,
-                    nodeType: methodNode.type,
-                    methodName: methodName,
-                    code: this.getNodeCode(queueItem.filePath, methodNode),
-                    startLine: methodNode.loc?.start.line || 0,
-                    endLine: methodNode.loc?.end.line || 0
-                };
-                const methodComment = await this.jsDocGenerator.generateComment(methodQueueItem);
-                methodComments[methodName] = methodComment;
-            }
-        }
-
-        return methodComments;
-    }
-
-    private getMethodName(methodNode: TSESTree.MethodDefinition): string {
-        return methodNode.key.type === 'Identifier' ? methodNode.key.name : '';
-    }
-
-    // Add method comment to the methodComments object
-    private addMethodComment(methodNode: TSESTree.MethodDefinition, comment: string, methodComments: Record<string, string>): void {
-        const methodName = this.getMethodName(methodNode);
-        if (methodName) {
-            methodComments[methodName] = comment;
-        }
-    }
-
+    /**
+     * Retrieves the code of a specific node from a given file.
+     *
+     * @param {string} filePath - The path to the file containing the node.
+     * @param {TSESTree.Node} node - The node to extract the code from.
+     * @returns {string} The code belonging to the specified node.
+     */
     public getNodeCode(filePath: string, node: TSESTree.Node): string {
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         const lines = fileContent.split('\n');
@@ -257,13 +245,23 @@ export class DocumentationGenerator {
         return lines.slice(startLine - 1, endLine).join('\n');
     }
 
+    /**
+     * Retrieves the content of a file from the provided URL.
+     * 
+     * @param {string} contentsUrl - The URL of the file contents
+     * @returns {Promise<string>} The content of the file as a string
+     */
     private async getFileContent(contentsUrl: string): Promise<string> {
         const response = await fetch(contentsUrl);
         const data = await response.json();
         return Buffer.from(data.content, 'base64').toString('utf-8');
     }
 
-
+    /**
+     * Asynchronously generates a pull request title and description for adding JSDoc documentation.
+     * @param {number} [pullNumber] - Optional pull request number that the JSDoc documentation is related to.
+     * @returns {Promise<{ title: string; body: string }>} - A promise that resolves to an object with a title and body for the pull request.
+     */
     private async generatePRContent(pullNumber?: number): Promise<{ title: string; body: string }> {
         const modifiedFiles = Array.from(this.fileContents.keys());
         const filesContext = modifiedFiles.map(file => `- ${file}`).join('\n');
@@ -280,15 +278,7 @@ export class DocumentationGenerator {
             2. Summary of modified files
             3. Instructions for reviewers
 
-            Do not return any special characters or markdown in the response.
-
-            Format the response as a JSON object with 'title' and 'body' fields as shown below:
-            {
-                "title": "PR Title",
-                "body": "PR Description"
-            }
-            
-            `;
+            Format the response as a JSON object with 'title' and 'body' fields.`;
 
         const response = await this.aiService.generateComment(prompt);
         try {
@@ -299,7 +289,6 @@ export class DocumentationGenerator {
             };
         } catch (error) {
             console.error('Error parsing AI response:', error);
-            // Fallback to default PR content
             return {
                 title: `docs: Add JSDoc documentation${pullNumber ? ` for PR #${pullNumber}` : ''}`,
                 body: this.generateDefaultPRBody()
@@ -307,6 +296,11 @@ export class DocumentationGenerator {
         }
     }
 
+    /**
+     * Generates the default pull request body for adding JSDoc documentation to TypeScript files.
+     * 
+     * @returns {string} The default pull request body containing information about the changes made.
+     */
     private generateDefaultPRBody(): string {
         const changes = Array.from(this.fileContents.keys())
             .map(filePath => `- Added JSDoc documentation to \`${filePath}\``)
@@ -320,25 +314,5 @@ export class DocumentationGenerator {
 
         ### 🤖 Generated by Documentation Bot
         This is an automated PR created by the documentation generator tool.`;
-    }
-
-    public createWorkflow(): void {
-        // Create the GitHub Actions workflow
-    }
-
-    public runTests(): void {
-        // Run tests to ensure the generated documentation is accurate
-    }
-
-    public validate(): void {
-        // Validate the generated documentation
-    }
-
-    public document(): void {
-        // Generate documentation for the codebase
-    }
-
-    public communicate(): void {
-        // Communicate the availability and usage instructions to the team
     }
 }

@@ -14,11 +14,8 @@ interface ConfigurationData {
     excludedFiles: string[];
     commitMessageTemplate: string;
     pullRequestTemplate: string;
-    rootDirectory: string;
+    targetDirectory: string;
     excludedDirectories: string[];
-    aiService: {
-        apiKey: string;
-    };
     repository: Repository;
     branch: string;
     committedFiles: string[];
@@ -31,19 +28,18 @@ interface ConfigurationData {
     workflowSteps: string[];
 }
 
+/**
+ * Represents a configuration object that holds various settings for a project.
+ *
+ **/
 export class Configuration {
     public aiPromptTemplates: string[] = [];
     public includedFiles: string[] = [];
     public excludedFiles: string[] = [];
     public commitMessageTemplate: string = '';
     public pullRequestTemplate: string = '';
-    public rootDirectory: string = '';
+    public targetDirectory: string = '';
     public excludedDirectories: string[] = [];
-    public aiService: {
-        apiKey: string;
-    } = {
-            apiKey: '',
-        };
     public repository: Repository = {
         owner: '',
         name: ''
@@ -59,8 +55,14 @@ export class Configuration {
     public workflowSteps: string[] = [];
     private configPath = path.join(dirname(__dirname), 'src', 'config', 'config.json');
 
+    /**
+     * Constructor for initializing a new instance.
+     */
     constructor() { }
 
+    /**
+     * Loads configuration data from a file, parses it, and assigns the values to respective properties.
+     */
     public load(): void {
         try {
             const configData = fs.readFileSync(this.configPath, 'utf8');
@@ -71,9 +73,8 @@ export class Configuration {
             this.excludedFiles = parsedConfig.excludedFiles;
             this.commitMessageTemplate = parsedConfig.commitMessageTemplate;
             this.pullRequestTemplate = parsedConfig.pullRequestTemplate;
-            this.rootDirectory = parsedConfig.rootDirectory;
+            this.targetDirectory = parsedConfig.targetDirectory;
             this.excludedDirectories = parsedConfig.excludedDirectories;
-            this.aiService = parsedConfig.aiService;
             this.repository = parsedConfig.repository;
             this.branch = parsedConfig.branch;
             this.committedFiles = parsedConfig.committedFiles;
@@ -90,6 +91,9 @@ export class Configuration {
         }
     }
 
+    /**
+     * Saves the current configuration data to a JSON file.
+     */
     public save(): void {
         const configData: ConfigurationData = {
             aiPromptTemplates: this.aiPromptTemplates,
@@ -97,9 +101,8 @@ export class Configuration {
             excludedFiles: this.excludedFiles,
             commitMessageTemplate: this.commitMessageTemplate,
             pullRequestTemplate: this.pullRequestTemplate,
-            rootDirectory: this.rootDirectory,
+            targetDirectory: this.targetDirectory,
             excludedDirectories: this.excludedDirectories,
-            aiService: this.aiService,
             repository: this.repository,
             branch: this.branch,
             committedFiles: this.committedFiles,

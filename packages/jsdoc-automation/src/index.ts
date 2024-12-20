@@ -6,11 +6,22 @@ import { DocumentationGenerator } from './DocumentationGenerator.js';
 import { Configuration } from './Configuration.js';
 import { AIService } from './AIService.js';
 import { GitManager } from './GitManager.js';
-// import { GithubActionsWorkflow } from './GithubActionsWorkflow';
 
+/**
+ * Main function for generating documentation.
+ * This function creates instances of necessary classes
+ * such as Configuration, GitManager, DirectoryTraversal,
+ * TypeScriptParser, JsDocAnalyzer, AIService, JsDocGenerator,
+ * and DocumentationGenerator. It then loads the configuration,
+ * gets the files in a pull request if specified in the configuration,
+ * sets up directory traversal, parses TypeScript files,
+ * analyzes JSDoc comments, and generates documentation using
+ * an AI service. If an error occurs during the process,
+ * it logs the error and exits the process with code 1.
+ * @async
+ */
 async function main() {
     try {
-        // Load configuration
         const configuration = new Configuration();
         configuration.load();
 
@@ -26,9 +37,8 @@ async function main() {
             prFiles = files.map((file) => file.filename);
         }
 
-        // Create instances of the required components
         const directoryTraversal = new DirectoryTraversal(
-            configuration.rootDirectory,
+            configuration.targetDirectory,
             configuration.excludedDirectories,
             configuration.excludedFiles,
             prFiles
@@ -51,40 +61,6 @@ async function main() {
         // Generate documentation
         await documentationGenerator.generate(configuration.repository.pullNumber);
 
-        // // Run tests
-        // documentationGenerator.runTests();
-
-        // // Validate generated documentation
-        // documentationGenerator.validate();
-
-        // // Create a new branch and commit changes
-        // const gitManager = new GitManager(
-        //     configuration.repository,
-        //     configuration.branch
-        // );
-        // gitManager.createBranch();
-        // gitManager.commit(
-        //     configuration.committedFiles,
-        //     configuration.commitMessage
-        // );
-
-        // // Create a pull request
-        // gitManager.createPullRequest(
-        //     configuration.pullRequestTitle,
-        //     configuration.pullRequestDescription,
-        //     configuration.pullRequestLabels,
-        //     configuration.pullRequestReviewers
-        // );
-
-        // // Create and run the GitHub Actions workflow
-        // const githubActionsWorkflow = new GithubActionsWorkflow(
-        //     configuration.workflowTriggers,
-        //     configuration.workflowSteps
-        // );
-        // githubActionsWorkflow.run();
-
-        // // Communicate the availability and usage instructions
-        // documentationGenerator.communicate();
     } catch (error) {
         console.error('An error occurred during the documentation generation process:', error);
         process.exit(1);
