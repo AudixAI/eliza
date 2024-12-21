@@ -59,40 +59,35 @@ async function main() {
                 aiService
             );
 
-        // Generate documentation
-        await documentationGenerator.generate(configuration.repository.pullNumber);
-    } catch (initError) {
-        console.error('Error during service initialization or documentation generation:', {
-            error: initError,
-            stack: initError instanceof Error ? initError.stack : undefined,
-            configuration: {
-                rootDirectory: configuration.rootDirectory,
-                excludedDirectories: configuration.excludedDirectories,
-                repository: configuration.repository
-            }
+            // Generate documentation
+            await documentationGenerator.generate(configuration.repository.pullNumber);
+        } catch (error) {
+            console.error('Error during documentation generation:', {
+                message: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                timestamp: new Date().toISOString()
+            });
+            process.exit(1);
+        }
+
+    } catch (error) {
+        console.error('Critical error during documentation generation:', {
+            error: error instanceof Error ? {
+                name: error.name,
+                message: error.message,
+                stack: error.stack,
+            } : error,
+            timestamp: new Date().toISOString(),
+            nodeVersion: process.version,
+            platform: process.platform
         });
-        throw initError;
+        process.exit(1);
     }
+}
 
-} catch (error) {
-    console.error('Critical error during documentation generation:', {
-        error: error instanceof Error ? {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-        } : error,
-        timestamp: new Date().toISOString(),
-        nodeVersion: process.version,
-        platform: process.platform
-    });
+
+// Simple error handling for the main function
+main().catch(error => {
+    console.error('Fatal error:', error instanceof Error ? error.message : String(error));
     process.exit(1);
-}
-}
-
-
-try {
-    main();
-} catch (error) {
-    console.error('An error occurred during the documentation generation process:', error);
-    process.exit(1);
-}
+});

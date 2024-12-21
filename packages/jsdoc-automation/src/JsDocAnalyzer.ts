@@ -5,7 +5,6 @@ import { ASTQueueItem } from './types/index.js';
 
 type DocumentableNodeType =
   | AST_NODE_TYPES.ClassDeclaration
-  | AST_NODE_TYPES.InterfaceDeclaration
   | AST_NODE_TYPES.FunctionDeclaration
   | AST_NODE_TYPES.TSTypeAliasDeclaration
   | AST_NODE_TYPES.TSEnumDeclaration
@@ -26,7 +25,6 @@ export class JsDocAnalyzer {
 
     private documentableTypes: Set<DocumentableNodeType> = new Set([
         AST_NODE_TYPES.ClassDeclaration,
-        AST_NODE_TYPES.InterfaceDeclaration,
         AST_NODE_TYPES.FunctionDeclaration,
         AST_NODE_TYPES.TSTypeAliasDeclaration,
         AST_NODE_TYPES.TSEnumDeclaration,
