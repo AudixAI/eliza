@@ -2,11 +2,36 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Configuration } from './Configuration.js';
 
+
+
 /**
  * DirectoryTraversal class for traversing through directories and files.
  * @class DirectoryTraversal
  */
 export class DirectoryTraversal {
+    /**
+     * Directories that should always be excluded from scanning,
+     * regardless of configuration
+     */
+    private static readonly FORCED_EXCLUDED_DIRS = [
+        'node_modules',
+        '.git',
+        'dist',
+        'build',
+        'coverage',
+        '.next',
+        '.nuxt',
+        '.cache',
+        'tmp',
+        'temp',
+        '.turbo',
+        '.husky',
+        '.github',
+        '.vscode',
+        'public',
+        'static'
+    ];
+
     /**
      * Constructor for directory traversal
      * @param {Configuration} config - Configuration object containing paths and exclusions
@@ -97,6 +122,17 @@ export class DirectoryTraversal {
     private isExcluded(absolutePath: string): boolean {
         // Get path relative to the target directory for exclusion checking
         const relativeToTarget = path.relative(this.config.absolutePath, absolutePath);
+
+        // First check forced excluded directories - these are always excluded
+        const isInForcedExcludedDir = DirectoryTraversal.FORCED_EXCLUDED_DIRS.some(dir =>
+            absolutePath.includes(`${path.sep}${dir}${path.sep}`) ||
+            absolutePath.includes(`${path.sep}${dir}`) ||
+            absolutePath.startsWith(`${dir}${path.sep}`)
+        );
+
+        if (isInForcedExcludedDir) {
+            return true;
+        }
 
         // Check if path is in excluded directory
         const isExcludedDir = this.config.excludedDirectories.some(dir =>

@@ -119,64 +119,7 @@ export class DocumentationGenerator {
 
             // Process each node in the file
             for (const node of ast.body) {
-                if (!this.jsDocAnalyzer.shouldHaveJSDoc(node)) continue;
-
-                // Process the current node
-                const jsDocComment = this.jsDocAnalyzer.getJSDocComment(node, ast.comments || []);
-                const queueItem: ASTQueueItem = {
-                    filePath: filePath,
-                    startLine: node.loc?.start.line || 0,
-                    endLine: node.loc?.end.line || 0,
-                    nodeType: node.type,
-                    className: this.jsDocAnalyzer.isClassNode(node) ? node.id?.name : undefined,
-                    methodName: node.type === 'MethodDefinition' ? (node.key as TSESTree.Identifier).name : undefined,
-                    code: this.getNodeCode(filePath, node),
-                };
-
-                if (jsDocComment) {
-                    queueItem.jsDoc = jsDocComment;
-                    this.existingJsDocQueue.push(queueItem);
-                } else {
-                    this.missingJsDocQueue.push(queueItem);
-                }
-
-                // If this is a class declaration, process its methods
-                if (this.jsDocAnalyzer.isClassNode(node)) {
-                    let classBody: TSESTree.ClassBody | null;
-
-                    if (node.type === 'ExportNamedDeclaration') {
-                        classBody = ((node as TSESTree.ExportNamedDeclaration).declaration as TSESTree.ClassDeclaration).body;
-                    } else {
-                        classBody = (node as TSESTree.ClassDeclaration).body;
-                    }
-
-                    if (!classBody) {
-                        console.log('No class body found for class', node.id?.name);
-                        continue;
-                    }
-
-                    for (const classElement of classBody.body) {
-                        if (classElement.type === 'MethodDefinition') {
-                            const methodJsDocComment = this.jsDocAnalyzer.getJSDocComment(classElement, ast.comments || []);
-                            const methodQueueItem: ASTQueueItem = {
-                                filePath: filePath,
-                                startLine: classElement.loc?.start.line || 0,
-                                endLine: classElement.loc?.end.line || 0,
-                                nodeType: classElement.type,
-                                className: node.id?.name,
-                                methodName: (classElement.key as TSESTree.Identifier).name,
-                                code: this.getNodeCode(filePath, classElement),
-                            };
-
-                            if (methodJsDocComment) {
-                                methodQueueItem.jsDoc = methodJsDocComment;
-                                this.existingJsDocQueue.push(methodQueueItem);
-                            } else {
-                                this.missingJsDocQueue.push(methodQueueItem);
-                            }
-                        }
-                    }
-                }
+                this.processNode(node, filePath, ast);
             }
         }
 
@@ -217,6 +160,49 @@ export class DocumentationGenerator {
                     labels: ['documentation', 'automated-pr'],
                     reviewers: this.configuration.pullRequestReviewers || []
                 });
+            }
+        }
+    }
+
+    /**
+     * Processes a single AST node and its children for JSDoc documentation
+     * @param node - The AST node to process
+     * @param filePath - Path to the source file
+     * @param ast - The complete AST
+     */
+    private processNode(node: TSESTree.Node, filePath: string, ast: TSESTree.Program): void {
+        if (!this.jsDocAnalyzer.shouldHaveJSDoc(node)) return;
+
+        // Process the main node
+        const jsDocComment = this.jsDocAnalyzer.getJSDocComment(node, ast.comments || []);
+        const queueItem = this.jsDocAnalyzer.createQueueItem(
+            node,
+            filePath,
+            this.getNodeCode(filePath, node)
+        );
+
+        if (jsDocComment) {
+            queueItem.jsDoc = jsDocComment;
+            this.existingJsDocQueue.push(queueItem);
+        } else {
+            this.missingJsDocQueue.push(queueItem);
+        }
+
+        // Process any documentable children (like class methods)
+        const children = this.jsDocAnalyzer.getDocumentableChildren(node);
+        for (const child of children) {
+            const childJsDocComment = this.jsDocAnalyzer.getJSDocComment(child, ast.comments || []);
+            const childQueueItem = this.jsDocAnalyzer.createQueueItem(
+                child,
+                filePath,
+                this.getNodeCode(filePath, child)
+            );
+
+            if (childJsDocComment) {
+                childQueueItem.jsDoc = childJsDocComment;
+                this.existingJsDocQueue.push(childQueueItem);
+            } else {
+                this.missingJsDocQueue.push(childQueueItem);
             }
         }
     }

@@ -1,4 +1,5 @@
 export interface ASTQueueItem {
+    name: string;
     filePath: string;
     startLine: number;
     endLine: number;

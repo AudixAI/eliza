@@ -46,9 +46,9 @@ export class Configuration implements Omit<ConfigurationData, 'rootDirectory'> {
     public commitMessage: string = 'Generated JSDoc comments';
     public pullRequestTitle: string = 'JSDoc Generation';
     public pullRequestDescription: string = 'Automated JSDoc generation for the codebase';
-    public pullRequestLabels: string[] = ['documentation'];
+    public pullRequestLabels: string[] = ['documentation', 'automated-pr'];
     public pullRequestReviewers: string[] = [];
-    public excludedFiles: string[] = [];
+    public excludedFiles: string[] = ["index.d.ts"];
     public branch: string = 'main';
 
     constructor() {
