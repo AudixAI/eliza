@@ -42,22 +42,39 @@ Your response should not contain any questions. Brief, concise statements only. 
 
 ` + messageCompletionFooter;
 
+/**
+ * Represents a client for interacting with Twitter search features.
+ */
+ 
 export class TwitterSearchClient {
     client: ClientBase;
     runtime: IAgentRuntime;
     twitterUsername: string;
     private respondedTweets: Set<string> = new Set();
 
+/**
+ * Constructor for creating a new instance of a class.
+ *
+ * @param {ClientBase} client - The client instance to use.
+ * @param {IAgentRuntime} runtime - The runtime instance to use.
+ */
     constructor(client: ClientBase, runtime: IAgentRuntime) {
         this.client = client;
         this.runtime = runtime;
         this.twitterUsername = runtime.getSetting("TWITTER_USERNAME");
     }
 
+/**
+ * Asynchronously starts the process by invoking the engageWithSearchTermsLoop method.
+ */
     async start() {
         this.engageWithSearchTermsLoop();
     }
 
+/**
+ * A private method that continuously calls engageWithSearchTerms() at random intervals.
+ * The interval is between 60 to 120 minutes.
+ */
     private engageWithSearchTermsLoop() {
         this.engageWithSearchTerms();
         setTimeout(
@@ -66,6 +83,11 @@ export class TwitterSearchClient {
         );
     }
 
+/**
+ * Engages with search terms by fetching search tweets and selecting a relevant tweet to reply to.
+ * 
+ * @returns {Promise<void>} A promise that resolves once the search terms have been engaged with
+ */
     private async engageWithSearchTerms() {
         console.log("Engaging with search terms");
         try {

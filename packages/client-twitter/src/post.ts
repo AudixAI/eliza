@@ -15,7 +15,6 @@ import { generateTweetActions } from "@ai16z/eliza";
 import { IImageDescriptionService, ServiceType } from "@ai16z/eliza";
 import { buildConversationThread } from "./utils.ts";
 import { twitterMessageHandlerTemplate } from "./interactions.ts";
-import { DEFAULT_MAX_TWEET_LENGTH } from "./environment.ts";
 
 const twitterPostTemplate = `
 # Areas of Expertise
@@ -59,8 +58,17 @@ Tweet:
 
 # Respond with qualifying action tags only.` + postActionResponseFooter;
 
+const MAX_TWEET_LENGTH = 240;
+
 /**
  * Truncate text to fit within the Twitter character limit, ensuring it ends at a complete sentence.
+ */
+/**
+ * Truncates a given text to fit within the maxTweetLength while maintaining grammatical correctness.
+ * 
+ * @param {string} text - The text to truncate.
+ * @param {number} maxTweetLength - The maximum length the text should be truncated to.
+ * @returns {string} The truncated text with proper punctuation and ellipsis if applicable.
  */
 function truncateToCompleteSentence(
     text: string,
@@ -279,7 +287,7 @@ export class TwitterPostClient {
             // Use the helper function to truncate to complete sentence
             const content = truncateToCompleteSentence(
                 cleanedContent,
-                parseInt(this.runtime.getSetting("MAX_TWEET_LENGTH")) || DEFAULT_MAX_TWEET_LENGTH
+                MAX_TWEET_LENGTH
             );
 
             const removeQuotes = (str: string) =>

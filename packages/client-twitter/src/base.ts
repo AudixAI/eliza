@@ -17,12 +17,27 @@ import {
 } from "agent-twitter-client";
 import { EventEmitter } from "events";
 
+/**
+ * Extracts the answer from a given text.
+ * 
+ * @param {string} text - The text containing the answer. 
+ * @returns {string} The extracted answer.
+ */
 export function extractAnswer(text: string): string {
     const startIndex = text.indexOf("Answer: ") + 8;
     const endIndex = text.indexOf("<|endoftext|>", 11);
     return text.slice(startIndex, endIndex);
 }
 
+/**
+ * Defines the structure of a Twitter profile object.
+ * @typedef {Object} TwitterProfile
+ * @property {string} id - The unique identifier of the user.
+ * @property {string} username - The username of the user.
+ * @property {string} screenName - The screen name of the user.
+ * @property {string} bio - The biography of the user.
+ * @property {string[]} nicknames - The list of nicknames associated with the user.
+ */
 type TwitterProfile = {
     id: string;
     username: string;
@@ -31,10 +46,21 @@ type TwitterProfile = {
     nicknames: string[];
 };
 
+/**
+ * Class representing a RequestQueue for handling asynchronous requests in a queue.
+ */
+ 
 class RequestQueue {
     private queue: (() => Promise<any>)[] = [];
     private processing: boolean = false;
 
+/**
+ * Asynchronously add a request to the queue and process it.
+ * 
+ * @template T
+ * @param {() => Promise<T>} request - The function that returns a Promise representing the request to be added to the queue.
+ * @returns {Promise<T>} - A Promise that resolves with the result of the request or rejects with an error.
+ */
     async add<T>(request: () => Promise<T>): Promise<T> {
         return new Promise((resolve, reject) => {
             this.queue.push(async () => {
@@ -49,6 +75,13 @@ class RequestQueue {
         });
     }
 
+/**
+ * Asynchronously processes items in the queue until all items are processed.
+ * If an error occurs while processing an item, it will be added back to the queue
+ * and a delay will be applied before attempting to process it again.
+ * 
+ * @returns A Promise that resolves once all items in the queue have been processed.
+ */
     private async processQueue(): Promise<void> {
         if (this.processing || this.queue.length === 0) {
             return;
@@ -70,17 +103,31 @@ class RequestQueue {
         this.processing = false;
     }
 
+/**
+ * Implements exponential backoff strategy for retrying a failed operation.
+ *
+ * @param {number} retryCount - The number of times to retry the operation.
+ * @returns {Promise<void>} - A Promise that resolves after the specified delay.
+ */
     private async exponentialBackoff(retryCount: number): Promise<void> {
         const delay = Math.pow(2, retryCount) * 1000;
         await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
+/**
+ * Delays execution for a random amount of time between 1500ms and 3500ms.
+ * @returns Promise that resolves after the random delay.
+ */
     private async randomDelay(): Promise<void> {
         const delay = Math.floor(Math.random() * 2000) + 1500;
         await new Promise((resolve) => setTimeout(resolve, delay));
     }
 }
 
+/**
+ * Class representing a base client for interacting with Twitter.
+ * @extends EventEmitter
+ */
 export class ClientBase extends EventEmitter {
     static _twitterClients: { [accountIdentifier: string]: Scraper } = {};
     twitterClient: Scraper;
@@ -94,6 +141,11 @@ export class ClientBase extends EventEmitter {
 
     profile: TwitterProfile | null;
 
+/**
+ * Caches the provided tweet in the cache manager.
+ * @param {Tweet} tweet - The tweet to be cached.
+ * @returns {Promise<void>} - A Promise that resolves when the tweet is cached.
+ */
     async cacheTweet(tweet: Tweet): Promise<void> {
         if (!tweet) {
             console.warn("Tweet is undefined, skipping cache");
@@ -103,6 +155,13 @@ export class ClientBase extends EventEmitter {
         this.runtime.cacheManager.set(`twitter/tweets/${tweet.id}`, tweet);
     }
 
+/**
+  * Retrieves a cached Tweet object by its ID.
+  * 
+  * @param {string} tweetId - The ID of the tweet to retrieve from cache.
+  * @returns {Promise<Tweet | undefined>} A Promise that resolves to the cached Tweet object, or undefined if not found.
+  */
+  **/
     async getCachedTweet(tweetId: string): Promise<Tweet | undefined> {
         const cached = await this.runtime.cacheManager.get<Tweet>(
             `twitter/tweets/${tweetId}`
@@ -111,6 +170,14 @@ export class ClientBase extends EventEmitter {
         return cached;
     }
 
+/**
+ * Retrieves a tweet by its ID. If the tweet is found in the cache, it is returned directly.
+ * Otherwise, a request is made to the Twitter Client to fetch the tweet.
+ * Once the tweet is retrieved, it is cached for future reference.
+ * 
+ * @param {string} tweetId - The ID of the tweet to retrieve.
+ * @returns {Promise<Tweet>} A Promise that resolves with the retrieved tweet.
+ */
     async getTweet(tweetId: string): Promise<Tweet> {
         const cachedTweet = await this.getCachedTweet(tweetId);
 
@@ -128,12 +195,20 @@ export class ClientBase extends EventEmitter {
 
     callback: (self: ClientBase) => any = null;
 
+/**
+ * Method called when the object is ready.
+ * @throws {Error} Not implemented in base class, please call from subclass
+ */
     onReady() {
         throw new Error(
             "Not implemented in base class, please call from subclass"
         );
     }
 
+/**
+ * Constructor for creating a new instance of ClientBase.
+ * @param {IAgentRuntime} runtime - The runtime object for the agent.
+ */
     constructor(runtime: IAgentRuntime) {
         super();
         this.runtime = runtime;
@@ -152,7 +227,16 @@ export class ClientBase extends EventEmitter {
             this.runtime.character.style.post.join();
     }
 
+/**
+ * Asynchronously initializes the Twitter session.
+ * Retrieves settings such as username, password, email, retry limit, 2FA secret, and cookies.
+ * Checks for existing cookies and attempts to log in using the provided credentials.
+ * Retries the login process if unsuccessful up to the specified limit.
+ * Retrieves the user's Twitter profile information and stores it for later use.
+ * Loads the latest checked tweet ID and populates the timeline.
+ */
     async init() {
+        //test
         const username = this.runtime.getSetting("TWITTER_USERNAME");
         const password = this.runtime.getSetting("TWITTER_PASSWORD");
         const email = this.runtime.getSetting("TWITTER_EMAIL");
@@ -162,20 +246,36 @@ export class ClientBase extends EventEmitter {
         );
         const twitter2faSecret =
             this.runtime.getSetting("TWITTER_2FA_SECRET") || undefined;
+        const cookies = this.runtime.getSetting("TWITTER_COOKIES");
 
         if (!username) {
             throw new Error("Twitter username not configured");
         }
+        // Check for Twitter cookies
+        if (cookies) {
+            elizaLogger.debug("Using cookies from settings");
+            const cookiesArray = JSON.parse(cookies);
 
-        const cachedCookies = await this.getCachedCookies(username);
-
-        if (cachedCookies) {
-            elizaLogger.info("Using cached cookies");
-            await this.setCookiesFromArray(cachedCookies);
+            await this.setCookiesFromArray(cookiesArray);
+        } else {
+            elizaLogger.debug("No cookies found in settings");
+            elizaLogger.debug("Checking for cached cookies");
+            const cachedCookies = await this.getCachedCookies(username);
+            if (cachedCookies) {
+                await this.setCookiesFromArray(cachedCookies);
+            }
         }
 
         elizaLogger.log("Waiting for Twitter login");
         while (retries > 0) {
+            const cookies = await this.twitterClient.getCookies();
+            if ((await this.twitterClient.isLoggedIn()) && !!cookies) {
+                elizaLogger.info("Already logged in.");
+                await this.cacheCookies(username, cookies);
+                elizaLogger.info("Successfully logged in and cookies cached.");
+                break;
+            }
+
             try {
                 await this.twitterClient.login(
                     username,
@@ -183,17 +283,6 @@ export class ClientBase extends EventEmitter {
                     email,
                     twitter2faSecret
                 );
-                if (await this.twitterClient.isLoggedIn()) {
-                    elizaLogger.info("Successfully logged in.");
-                    if (!cachedCookies) {
-                        elizaLogger.info("Caching cookies");
-                        await this.cacheCookies(
-                            username,
-                            await this.twitterClient.getCookies()
-                        );
-                    }
-                    break;
-                }
             } catch (error) {
                 elizaLogger.error(`Login attempt failed: ${error.message}`);
             }
@@ -237,6 +326,12 @@ export class ClientBase extends EventEmitter {
         await this.populateTimeline();
     }
 
+/**
+ * Asynchronously fetches a specified number of own posts.
+ * 
+ * @param {number} count - The number of posts to fetch.
+ * @returns {Promise<Tweet[]>} A promise that resolves with an array of Tweets representing the fetched posts.
+ */
     async fetchOwnPosts(count: number): Promise<Tweet[]> {
         elizaLogger.debug("fetching own posts");
         const homeTimeline = await this.twitterClient.getUserTweets(
@@ -246,6 +341,12 @@ export class ClientBase extends EventEmitter {
         return homeTimeline.tweets;
     }
 
+/**
+ * Fetches the home timeline with the specified count of tweets.
+ *
+ * @param {number} count - The number of tweets to fetch
+ * @returns {Promise<Tweet[]>} - A promise that resolves with an array of processed tweets
+ */
     async fetchHomeTimeline(count: number): Promise<Tweet[]> {
         elizaLogger.debug("fetching home timeline");
         const homeTimeline = await this.twitterClient.fetchHomeTimeline(
@@ -306,6 +407,12 @@ export class ClientBase extends EventEmitter {
         return processedTimeline;
     }
 
+/**
+ * Fetches timeline for actions.
+ * 
+ * @param {number} count - The number of tweets to fetch.
+ * @returns {Promise<Tweet[]>} - The array of tweets fetched along with their details.
+ */
     async fetchTimelineForActions(count: number): Promise<Tweet[]> {
         elizaLogger.debug("fetching timeline for actions");
         const homeTimeline = await this.twitterClient.fetchHomeTimeline(
@@ -338,6 +445,15 @@ export class ClientBase extends EventEmitter {
         }));
     }
 
+/**
+ * Fetch search tweets based on query, max number of tweets, search mode, and an optional cursor.
+ * 
+ * @param {string} query - The query to search for tweets.
+ * @param {number} maxTweets - The maximum number of tweets to retrieve.
+ * @param {SearchMode} searchMode - The search mode for fetching tweets.
+ * @param {string} [cursor] - Optional cursor for fetching next set of tweets.
+ * @returns {Promise<QueryTweetsResponse>} A promise that resolves to the response containing the query tweets.
+ */
     async fetchSearchTweets(
         query: string,
         maxTweets: number,
@@ -375,6 +491,11 @@ export class ClientBase extends EventEmitter {
         }
     }
 
+/**
+ * Populates the timeline with tweets from cache or fetches new tweets from the API.
+ * 
+ * @returns {Promise<void>} A promise that resolves once the timeline is populated.
+ */
     private async populateTimeline() {
         elizaLogger.debug("populating timeline...");
 
@@ -614,6 +735,14 @@ export class ClientBase extends EventEmitter {
         await this.cacheMentions(mentionsAndInteractions.tweets);
     }
 
+/**
+ * Asynchronously sets cookies from an array of objects containing cookie properties.
+ * Each object in the array should have properties for key, value, domain, path, secure, httpOnly, and sameSite.
+ * The cookies are then transformed into strings and passed to the twitterClient's setCookies method.
+ *
+ * @param {Array<Object>} cookiesArray - An array of objects representing the cookies to be set.
+ * @returns {Promise<void>} A promise that resolves after the cookies are successfully set.
+ */
     async setCookiesFromArray(cookiesArray: any[]) {
         const cookieStrings = cookiesArray.map(
             (cookie) =>
@@ -626,6 +755,16 @@ export class ClientBase extends EventEmitter {
         await this.twitterClient.setCookies(cookieStrings);
     }
 
+/**
+ * Asynchronously saves a request message to memory if it has text content.
+ * If the message already exists in memory, a debug message is logged. 
+ * Otherwise, a new memory is created with zero vector embedding.
+ * Finally, the message is evaluated with the current state and Twitter client.
+ * 
+ * @param {Memory} message - The message to be saved to memory.
+ * @param {State} state - The current state of the application.
+ * @returns {Promise<void>} A Promise that resolves once the message is saved and evaluated.
+ */
     async saveRequestMessage(message: Memory, state: State) {
         if (message.content.text) {
             const recentMessage = await this.runtime.messageManager.getMemories(
@@ -655,6 +794,11 @@ export class ClientBase extends EventEmitter {
         }
     }
 
+/**
+ * Asynchronously loads the latest checked tweet ID from the cache and updates the value of 'lastCheckedTweetId' if a value is found.
+ * 
+ * @returns A Promise that resolves once the latest checked tweet ID is loaded and assigned to 'lastCheckedTweetId'.
+ */
     async loadLatestCheckedTweetId(): Promise<void> {
         const latestCheckedTweetId =
             await this.runtime.cacheManager.get<string>(
@@ -666,6 +810,9 @@ export class ClientBase extends EventEmitter {
         }
     }
 
+/**
+ * Asynchronously caches the latest checked tweet ID for the user's Twitter profile 
+ */
     async cacheLatestCheckedTweetId() {
         if (this.lastCheckedTweetId) {
             await this.runtime.cacheManager.set(
@@ -675,12 +822,21 @@ export class ClientBase extends EventEmitter {
         }
     }
 
+/**
+ * Retrieve cached timeline tweets for the current user profile.
+ * @returns {Promise<Tweet[] | undefined>} A promise that resolves with an array of cached tweets or undefined if no cache exists.
+ */
     async getCachedTimeline(): Promise<Tweet[] | undefined> {
         return await this.runtime.cacheManager.get<Tweet[]>(
             `twitter/${this.profile.username}/timeline`
         );
     }
 
+/**
+ * Caches the provided timeline data for the user profile in the cache storage.
+ * @param {Tweet[]} timeline The timeline data to be cached.
+ * @returns {Promise<void>} A promise that resolves once the data is cached.
+ */
     async cacheTimeline(timeline: Tweet[]) {
         await this.runtime.cacheManager.set(
             `twitter/${this.profile.username}/timeline`,
@@ -689,6 +845,12 @@ export class ClientBase extends EventEmitter {
         );
     }
 
+/**
+ * Caches the provided array of mentions for the current Twitter profile.
+ * 
+ * @param {Tweet[]} mentions - An array of Tweet objects to be cached.
+ * @returns {Promise<void>}
+ */
     async cacheMentions(mentions: Tweet[]) {
         await this.runtime.cacheManager.set(
             `twitter/${this.profile.username}/mentions`,
@@ -697,12 +859,24 @@ export class ClientBase extends EventEmitter {
         );
     }
 
+/**
+ * Asynchronously retrieves cached cookies for a specified username from the cache manager.
+ * @param {string} username - The username to retrieve cached cookies for.
+ * @returns {Promise<any[]>} A promise that resolves to an array of cached cookies for the specified username.
+ */
     async getCachedCookies(username: string) {
         return await this.runtime.cacheManager.get<any[]>(
             `twitter/${username}/cookies`
         );
     }
 
+/**
+ * Cache cookies for a specific user in Twitter.
+ * 
+ * @param {string} username - The username of the user whose cookies are being cached.
+ * @param {any[]} cookies - The cookies to be cached.
+ * @returns {Promise<void>} A Promise that resolves once the cookies are successfully cached.
+ */
     async cacheCookies(username: string, cookies: any[]) {
         await this.runtime.cacheManager.set(
             `twitter/${username}/cookies`,
@@ -710,12 +884,25 @@ export class ClientBase extends EventEmitter {
         );
     }
 
+/**
+ * Retrieve the cached Twitter profile for a specific username.
+ * 
+ * @param {string} username - The username of the Twitter profile to retrieve.
+ * @returns {Promise<TwitterProfile>} A Promise that resolves with the cached Twitter profile.
+ */
     async getCachedProfile(username: string) {
         return await this.runtime.cacheManager.get<TwitterProfile>(
             `twitter/${username}/profile`
         );
     }
 
+/**
+ * Caches the Twitter profile of a user.
+ * 
+ * @param {TwitterProfile} profile - The Twitter profile to be cached.
+ * @returns {Promise<void>} - A Promise that resolves once the profile is cached.
+ */ 
+         
     async cacheProfile(profile: TwitterProfile) {
         await this.runtime.cacheManager.set(
             `twitter/${profile.username}/profile`,
@@ -723,6 +910,12 @@ export class ClientBase extends EventEmitter {
         );
     }
 
+/**
+ * Fetches the Twitter profile of a user.
+ * 
+ * @param {string} username - The username to fetch the profile for.
+ * @returns {Promise<TwitterProfile>} A promise that resolves to the Twitter profile of the user.
+ */
     async fetchProfile(username: string): Promise<TwitterProfile> {
         const cached = await this.getCachedProfile(username);
 
