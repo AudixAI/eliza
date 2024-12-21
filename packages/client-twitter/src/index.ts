@@ -5,11 +5,22 @@ import { TwitterInteractionClient } from "./interactions.ts";
 import { TwitterPostClient } from "./post.ts";
 import { TwitterSearchClient } from "./search.ts";
 
+/**
+ * Class representing a Twitter Manager.
+ * @class
+ */
+
 class TwitterManager {
     client: ClientBase;
     post: TwitterPostClient;
     search: TwitterSearchClient;
     interaction: TwitterInteractionClient;
+/**
+ * Constructor for initializing a Twitter client instance.
+ *
+ * @param {IAgentRuntime} runtime - The runtime instance for the agent.
+ * @param {boolean} enableSearch - Flag to enable search functionality.
+ */
     constructor(runtime: IAgentRuntime, enableSearch: boolean) {
         this.client = new ClientBase(runtime);
         this.post = new TwitterPostClient(this.client, runtime);
