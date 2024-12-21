@@ -23,6 +23,10 @@ export interface GitHubConfig {
     token: string;
 }
 
+/**
+ * Class representing a GitHub client for interacting with GitHub repositories.
+ */
+ 
 export class GitHubClient {
     private octokit: Octokit;
     private git: SimpleGit;
@@ -30,6 +34,10 @@ export class GitHubClient {
     private runtime: AgentRuntime;
     private repoPath: string;
 
+/**
+ * Constructor for the GitHubAgent class.
+ * @param {AgentRuntime} runtime - The runtime object passed to the agent.
+ */
     constructor(runtime: AgentRuntime) {
         this.runtime = runtime;
         this.config = {
@@ -49,6 +57,12 @@ export class GitHubClient {
         );
     }
 
+/**
+ * Asynchronously initializes the repository by creating the necessary directories, cloning or pulling the repository,
+ * and checking out the specified branch if provided.
+ * 
+ * @returns {Promise<void>} A Promise that resolves when the initialization process is complete.
+ */
     async initialize() {
         // Create repos directory if it doesn't exist
         await fs.mkdir(path.join(process.cwd(), ".repos", this.config.owner), {
@@ -73,6 +87,9 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates memories from files found in the specified path.
+ */
     async createMemoriesFromFiles() {
         console.log("Create memories");
         const searchPath = this.config.path
@@ -125,6 +142,16 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates a pull request with the specified title, branch, files, and optional description.
+ *
+ * @param {string} title The title of the pull request.
+ * @param {string} branch The name of the new branch to create for the pull request.
+ * @param {Array<{ path: string; content: string }>} files An array of objects containing the path and content of each file to be included in the pull request.
+ * @param {string} [description] Optional. The description of the pull request. If not provided, the title will be used.
+ *
+ * @returns {Promise<any>} A Promise that resolves with the data of the created pull request.
+ */
     async createPullRequest(
         title: string,
         branch: string,
@@ -160,6 +187,13 @@ export class GitHubClient {
         return pr.data;
     }
 
+/**
+ * Asynchronously creates a commit in the git repository.
+ * 
+ * @param {string} message - The commit message.
+ * @param {Array<{ path: string; content: string }>} files - An array of objects representing the files to be committed, each with a path and content.
+ * @returns {Promise<void>} - A Promise that resolves when the commit and push operations are completed.
+ */
     async createCommit(
         message: string,
         files: Array<{ path: string; content: string }>
