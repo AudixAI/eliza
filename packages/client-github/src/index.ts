@@ -15,6 +15,15 @@ import {
 } from "@ai16z/eliza";
 import { validateGithubConfig } from "./environment";
 
+/**
+ * Interface for defining GitHub configuration options.
+ * @typedef {object} GitHubConfig
+ * @property {string} owner - The owner of the GitHub repository.
+ * @property {string} repo - The name of the GitHub repository.
+ * @property {string} [branch] - The branch of the repository (optional).
+ * @property {string} [path] - The file path within the repository (optional).
+ * @property {string} token - The authentication token for GitHub API access.
+ */
 export interface GitHubConfig {
     owner: string;
     repo: string;
@@ -23,6 +32,10 @@ export interface GitHubConfig {
     token: string;
 }
 
+/**
+ * Class representing a GitHub Client for interacting with GitHub repositories.
+ */
+ */
 export class GitHubClient {
     private octokit: Octokit;
     private git: SimpleGit;
@@ -30,6 +43,10 @@ export class GitHubClient {
     private runtime: AgentRuntime;
     private repoPath: string;
 
+/**
+ * Constructs a new instance of the GithubService class.
+ * @param {AgentRuntime} runtime - The AgentRuntime instance to use for configuration settings.
+ */
     constructor(runtime: AgentRuntime) {
         this.runtime = runtime;
         this.config = {
@@ -49,6 +66,12 @@ export class GitHubClient {
         );
     }
 
+/**
+ * Asynchronous function to initialize the repository by creating the repos directory if it doesn't exist,
+ * cloning or pulling the repository, and checking out the specified branch if provided.
+ * 
+ * @returns {Promise<void>} A Promise that resolves once the initialization is complete
+ */
     async initialize() {
         // Create repos directory if it doesn't exist
         await fs.mkdir(path.join(process.cwd(), ".repos", this.config.owner), {
@@ -73,6 +96,9 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates memories from files found in the specified path or in the repository path.
+ */
     async createMemoriesFromFiles() {
         console.log("Create memories");
         const searchPath = this.config.path
@@ -125,6 +151,14 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates a pull request with the specified parameters.
+ * @param {string} title - The title of the pull request.
+ * @param {string} branch - The name of the branch to create for the pull request.
+ * @param {Array<{ path: string; content: string }>} files - An array containing objects with file paths and contents to be added to the branch.
+ * @param {string} [description] - Optional description for the pull request. If not provided, title will be used instead.
+ * @returns {Promise<Object>} The data of the created pull request.
+ */
     async createPullRequest(
         title: string,
         branch: string,
@@ -160,6 +194,13 @@ export class GitHubClient {
         return pr.data;
     }
 
+/**
+ * Asynchronously creates a commit in the git repository with the provided message and files.
+ * 
+ * @param {string} message - The commit message to be associated with the commit.
+ * @param {Array<{ path: string; content: string }>} files - An array of objects containing the path and content of each file to be added to the commit.
+ * @returns {Promise<void>} A Promise that resolves when the commit and push operations are completed.
+ */
     async createCommit(
         message: string,
         files: Array<{ path: string; content: string }>
