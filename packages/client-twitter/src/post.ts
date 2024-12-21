@@ -62,6 +62,13 @@ Tweet:
 /**
  * Truncate text to fit within the Twitter character limit, ensuring it ends at a complete sentence.
  */
+/**
+ * Truncates a given text to fit within the specified maxTweetLength while keeping the text as close to a complete sentence as possible.
+ *
+ * @param {string} text - The text to truncate.
+ * @param {number} maxTweetLength - The maximum length the text can be.
+ * @returns {string} The truncated text.
+ */
 function truncateToCompleteSentence(
     text: string,
     maxTweetLength: number
