@@ -15,6 +15,15 @@ import {
 } from "@ai16z/eliza";
 import { validateGithubConfig } from "./environment";
 
+/**
+ * Interface for configuring GitHub API requests.
+ * @typedef {Object} GitHubConfig
+ * @property {string} owner - The username or organization name which owns the GitHub repository.
+ * @property {string} repo - The name of the GitHub repository.
+ * @property {string} [branch] - The name of the branch to fetch data from (optional).
+ * @property {string} [path] - The file path within the repository (optional).
+ * @property {string} token - The personal access token for authentication.
+ */
 export interface GitHubConfig {
     owner: string;
     repo: string;
@@ -23,6 +32,10 @@ export interface GitHubConfig {
     token: string;
 }
 
+/**
+ * Class representing a GitHub Client.
+ */
+ */
 export class GitHubClient {
     private octokit: Octokit;
     private git: SimpleGit;
@@ -30,6 +43,10 @@ export class GitHubClient {
     private runtime: AgentRuntime;
     private repoPath: string;
 
+/**
+ * Initializes the GitHubClient with the specified AgentRuntime.
+ * @param {AgentRuntime} runtime - The AgentRuntime instance to use for retrieving settings.
+ */
     constructor(runtime: AgentRuntime) {
         this.runtime = runtime;
         this.config = {
@@ -49,6 +66,14 @@ export class GitHubClient {
         );
     }
 
+/**
+ * Asynchronously initializes the process by:
+ * - Creating a "repos" directory if it doesn't already exist
+ * - Cloning the repository if it doesn't exist, or pulling updates if it does
+ * - Checking out a specified branch, if provided in the configuration
+ * 
+ * @returns {Promise<void>} A Promise that resolves once the initialization process is complete
+ */
     async initialize() {
         // Create repos directory if it doesn't exist
         await fs.mkdir(path.join(process.cwd(), ".repos", this.config.owner), {
@@ -73,6 +98,13 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates memories from files found in the specified path.
+ * This method searches for files in the configured path (if provided) or in the entire repository.
+ * For each file found, it reads the content, calculates its hash, and creates a knowledge document.
+ * If a document with the same id exists and the content hash matches, it skips processing that file.
+ * The knowledge document includes the text content, hash, source information, attachments, and metadata.
+ */
     async createMemoriesFromFiles() {
         console.log("Create memories");
         const searchPath = this.config.path
@@ -125,6 +157,18 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates a new pull request with the specified title, branch, files, and optional description.
+ * - Creates a new branch with the given name.
+ * - Writes the content of each file into the specified path within the repository.
+ * - Commits the changes, adds all files, and pushes to the remote branch.
+ * - Creates a pull request using the specified title, description (or default to title), source branch, and base branch.
+ * @param {string} title - The title of the pull request.
+ * @param {string} branch - The name of the branch to create and push changes to.
+ * @param {Array<{ path: string; content: string }>} files - An array of objects containing file paths and their content.
+ * @param {string} [description] - Optional description for the pull request. If not provided, defaults to the title.
+ * @returns {Promise<Object>} The data of the created pull request.
+ */
     async createPullRequest(
         title: string,
         branch: string,
@@ -160,6 +204,12 @@ export class GitHubClient {
         return pr.data;
     }
 
+/**
+ * Asynchronously creates a new commit in the Git repository with the provided message and files.
+ * @param {string} message - The commit message.
+ * @param {Array<{ path: string; content: string }>} files - An array of objects containing the path and content of each file to be committed.
+ * @returns {Promise<void>} A Promise that resolves when the commit and push operations are complete.
+ */
     async createCommit(
         message: string,
         files: Array<{ path: string; content: string }>
