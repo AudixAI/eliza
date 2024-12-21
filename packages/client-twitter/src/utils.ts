@@ -30,6 +30,14 @@ export const isValidTweet = (tweet: Tweet): boolean => {
     );
 };
 
+/**
+ * Asynchronously builds a conversation thread starting from a given tweet, with a specified depth limit.
+ *
+ * @param {Tweet} tweet - The initial tweet to start building the thread from.
+ * @param {ClientBase} client - The client used for interacting with the runtime and message manager.
+ * @param {number} [maxReplies=10] - The maximum number of replies to include in the thread.
+ * @returns {Promise<Tweet[]>} A Promise that resolves to an array of tweets representing the built conversation thread.
+ */
 export async function buildConversationThread(
     tweet: Tweet,
     client: ClientBase,
@@ -165,6 +173,15 @@ export async function buildConversationThread(
     return thread;
 }
 
+/**
+ * Send a tweet and return memories for the sent tweets.
+ * @param {ClientBase} client - The client used to send the tweet.
+ * @param {Content} content - The tweet content to be sent.
+ * @param {UUID} roomId - The room ID where the tweet is sent.
+ * @param {string} twitterUsername - The Twitter username associated with the tweet.
+ * @param {string} inReplyTo - The ID of the tweet being replied to.
+ * @returns {Promise<Memory[]>} - An array of memories for the sent tweets.
+ */
 export async function sendTweet(
     client: ClientBase,
     content: Content,
@@ -276,6 +293,12 @@ export async function sendTweet(
     return memories;
 }
 
+/**
+ * Splits the content of a tweet into multiple tweets based on a specified maximum length.
+ * @param {string} content - The content of the tweet to split.
+ * @param {number} maxLength - The maximum length of a single tweet.
+ * @returns {string[]} An array containing the split tweet content.
+ */
 function splitTweetContent(content: string, maxLength: number): string[] {
     const paragraphs = content.split("\n\n").map((p) => p.trim());
     const tweets: string[] = [];
@@ -312,6 +335,14 @@ function splitTweetContent(content: string, maxLength: number): string[] {
     return tweets;
 }
 
+/**
+ * Splits a paragraph into chunks of specified maximum length,
+ * ensuring that no chunk exceeds the specified length and splitting long sentences as needed.
+ * 
+ * @param {string} paragraph - The paragraph to split into chunks.
+ * @param {number} maxLength - The maximum length each chunk can have.
+ * @returns {string[]} An array of strings, each representing a chunk of the paragraph.
+ */
 function splitParagraph(paragraph: string, maxLength: number): string[] {
     // eslint-disable-next-line
     const sentences = paragraph.match(/[^\.!\?]+[\.!\?]+|[^\.!\?]+$/g) || [
