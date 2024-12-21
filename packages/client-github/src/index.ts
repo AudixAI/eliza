@@ -15,14 +15,40 @@ import {
 } from "@ai16z/eliza";
 import { validateGithubConfig } from "./environment";
 
+/**
+ * Interface representing configuration options for connecting to a GitHub repository.
+ * @typedef GitHubConfig
+ * @property {string} owner - The owner of the GitHub repository.
+ * @property {string} repo - The name of the GitHub repository.
+ * @property {string} [branch] - (Optional) The branch of the repository to connect to.
+ * @property {string} [path] - (Optional) The path within the repository to interact with.
+ * @property {string} token - The authentication token for accessing the repository.
+ */
 export interface GitHubConfig {
+/**
+ * The owner of the object, identified by a string value.
+ */
     owner: string;
+/**
+ * The type of the repo, represented as a string.
+ */
     repo: string;
+/**
+ * Represents a branch as an optional string field.
+ */
     branch?: string;
+@param {string} path - Optional parameter specifying the path.
     path?: string;
+/**
+ * Represents a string token.
+ */
     token: string;
 }
 
+/**
+ * GitHubClient class for interacting with GitHub repositories.
+ * @class
+ */
 export class GitHubClient {
     private octokit: Octokit;
     private git: SimpleGit;
@@ -30,6 +56,10 @@ export class GitHubClient {
     private runtime: AgentRuntime;
     private repoPath: string;
 
+/**
+ * Constructor for initializing the GitHubHandler class.
+ * @param {AgentRuntime} runtime - The AgentRuntime instance to be used for retrieving settings.
+ */
     constructor(runtime: AgentRuntime) {
         this.runtime = runtime;
         this.config = {
@@ -49,6 +79,12 @@ export class GitHubClient {
         );
     }
 
+/**
+ * Asynchronously initializes the repository by creating the 'repos' directory if it doesn't exist,
+ * cloning or pulling the repository, and checking out a specified branch if provided.
+ * 
+ * @returns {Promise<void>} A Promise that resolves once the initialization is complete.
+ */
     async initialize() {
         // Create repos directory if it doesn't exist
         await fs.mkdir(path.join(process.cwd(), ".repos", this.config.owner), {
@@ -73,6 +109,9 @@ export class GitHubClient {
         }
     }
 
+/**
+ * Asynchronously creates memories from files found in the specified path.
+ */
     async createMemoriesFromFiles() {
         console.log("Create memories");
         const searchPath = this.config.path
@@ -125,6 +164,14 @@ export class GitHubClient {
         }
     }
 
+/**
+  * Asynchronously creates a pull request with the given title, branch, files, and optional description.
+  * @param {string} title - The title of the pull request.
+  * @param {string} branch - The name of the branch to create the pull request from.
+  * @param {Array<{ path: string; content: string }>} files - An array of objects representing files to be added to the branch.
+  * @param {string} [description] - Optional. The description of the pull request. If not provided, the title will be used.
+  * @returns {Object} - The data of the created pull request.
+  */
     async createPullRequest(
         title: string,
         branch: string,
@@ -160,6 +207,15 @@ export class GitHubClient {
         return pr.data;
     }
 
+/**
+ * Asynchronously creates a new commit with the given message and files.
+ * Writes the content of each file to the specified path in the repository.
+ * Commits the changes and pushes them to the remote repository.
+ *
+ * @param {string} message - The message for the commit.
+ * @param {Array<{ path: string; content: string }>} files - An array of objects containing the path and content of each file to be committed.
+ * @returns {Promise<void>} A Promise that resolves once the commit and push operations are completed.
+ */
     async createCommit(
         message: string,
         files: Array<{ path: string; content: string }>
