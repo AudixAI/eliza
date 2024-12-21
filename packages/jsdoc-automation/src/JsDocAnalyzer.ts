@@ -1,17 +1,42 @@
 import type { TSESTree } from '@typescript-eslint/types';
 import { TypeScriptParser } from './TypeScriptParser.js';
-import { AST_NODE_TYPES } from '@typescript-eslint/types';
 import { ASTQueueItem } from './types/index.js';
 
+type AST_NODE_TYPES = {
+    ClassDeclaration: 'ClassDeclaration';
+    FunctionDeclaration: 'FunctionDeclaration';
+    TSTypeAliasDeclaration: 'TSTypeAliasDeclaration';
+    TSEnumDeclaration: 'TSEnumDeclaration';
+    MethodDefinition: 'MethodDefinition';
+    TSMethodSignature: 'TSMethodSignature';
+    TSInterfaceDeclaration: 'TSInterfaceDeclaration';
+    TSPropertySignature: 'TSPropertySignature';
+    ExportNamedDeclaration: 'ExportNamedDeclaration';
+    Identifier: 'Identifier';
+};
+
+const AST_NODE_TYPES = {
+    ClassDeclaration: 'ClassDeclaration',
+    FunctionDeclaration: 'FunctionDeclaration',
+    TSTypeAliasDeclaration: 'TSTypeAliasDeclaration',
+    TSEnumDeclaration: 'TSEnumDeclaration',
+    MethodDefinition: 'MethodDefinition',
+    TSMethodSignature: 'TSMethodSignature',
+    TSInterfaceDeclaration: 'TSInterfaceDeclaration',
+    TSPropertySignature: 'TSPropertySignature',
+    ExportNamedDeclaration: 'ExportNamedDeclaration',
+    Identifier: 'Identifier',
+} as const;
+
 type DocumentableNodeType =
-  | AST_NODE_TYPES.ClassDeclaration
-  | AST_NODE_TYPES.FunctionDeclaration
-  | AST_NODE_TYPES.TSTypeAliasDeclaration
-  | AST_NODE_TYPES.TSEnumDeclaration
-  | AST_NODE_TYPES.MethodDefinition
-  | AST_NODE_TYPES.TSMethodSignature
-  | AST_NODE_TYPES.TSInterfaceDeclaration
-  | AST_NODE_TYPES.TSPropertySignature;
+    | 'ClassDeclaration'
+    | 'FunctionDeclaration'
+    | 'TSTypeAliasDeclaration'
+    | 'TSEnumDeclaration'
+    | 'MethodDefinition'
+    | 'TSMethodSignature'
+    | 'TSInterfaceDeclaration'
+    | 'TSPropertySignature';
 
 interface Location {
     start: number;
@@ -96,12 +121,12 @@ export class JsDocAnalyzer {
         return node;
     }
 
-       /**
-     * Gets the method name from a MethodDefinition node
-     * @param node - The method definition node
-     * @returns The method name or undefined
-     */
-       private getMethodName(node: TSESTree.MethodDefinition): string | undefined {
+    /**
+  * Gets the method name from a MethodDefinition node
+  * @param node - The method definition node
+  * @returns The method name or undefined
+  */
+    private getMethodName(node: TSESTree.MethodDefinition): string | undefined {
         if (this.isIdentifier(node.key)) {
             return node.key.name;
         }
@@ -151,12 +176,12 @@ export class JsDocAnalyzer {
         this.traverse(ast, ast.comments || []);
     }
 
-/**
- * Traverses the AST node and checks for JSDoc comments.
- *
- * @param {TSESTree.Node} node - The AST node to traverse.
- * @param {TSESTree.Comment[]} [comments] - Optional array of comments associated with the node.
- */
+    /**
+     * Traverses the AST node and checks for JSDoc comments.
+     *
+     * @param {TSESTree.Node} node - The AST node to traverse.
+     * @param {TSESTree.Comment[]} [comments] - Optional array of comments associated with the node.
+     */
     private traverse(node: TSESTree.Node, comments?: TSESTree.Comment[]): void {
         if (this.shouldHaveJSDoc(node)) {
             const jsDocComment = this.getJSDocComment(node, comments || []);
@@ -193,12 +218,12 @@ export class JsDocAnalyzer {
         return this.documentableTypes.has(actualNode.type as DocumentableNodeType);
     }
 
-     /**
-     * Gets any child nodes that should be processed for JSDoc
-     * @param node - The parent node
-     * @returns Array of child nodes that need JSDoc
-     */
-     public getDocumentableChildren(node: TSESTree.Node): TSESTree.Node[] {
+    /**
+    * Gets any child nodes that should be processed for JSDoc
+    * @param node - The parent node
+    * @returns Array of child nodes that need JSDoc
+    */
+    public getDocumentableChildren(node: TSESTree.Node): TSESTree.Node[] {
         const actualNode = this.getActualNode(node);
 
         if (this.isClassDeclaration(actualNode)) {
@@ -319,12 +344,12 @@ export class JsDocAnalyzer {
         })?.value;
     }
 
-/**
- * Returns the start and end location of the given Node.
- *
- * @param {TSESTree.Node} node - The Node to get location from.
- * @returns {Location} The start and end location of the Node.
- */
+    /**
+     * Returns the start and end location of the given Node.
+     *
+     * @param {TSESTree.Node} node - The Node to get location from.
+     * @returns {Location} The start and end location of the Node.
+     */
     public getNodeLocation(node: TSESTree.Node): Location {
         return {
             start: node.loc.start.line,
@@ -332,12 +357,12 @@ export class JsDocAnalyzer {
         };
     }
 
-/**
- * Retrieves all methods of a specific class or all classes in a given file.
- * @param filePath - The path of the file to parse.
- * @param className - The name of the class to retrieve methods from. Optional.
- * @returns An array of MethodDefinition nodes representing the methods found.
- */
+    /**
+     * Retrieves all methods of a specific class or all classes in a given file.
+     * @param filePath - The path of the file to parse.
+     * @param className - The name of the class to retrieve methods from. Optional.
+     * @returns An array of MethodDefinition nodes representing the methods found.
+     */
     public getClassMethods(filePath: string, className?: string): TSESTree.MethodDefinition[] {
         const ast = this.typeScriptParser.parse(filePath);
         if (!ast) return [];
