@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { parse } from '@typescript-eslint/parser';
+import { parse, ParserOptions } from '@typescript-eslint/parser';
 
 /**
  * A class for parsing TypeScript files.
@@ -14,11 +14,25 @@ export class TypeScriptParser {
     public parse(file: string): any {
         try {
             const content = fs.readFileSync(file, 'utf-8');
-            const ast = parse(content, {
+            const parserOptions: ParserOptions = {
                 sourceType: 'module',
-                ecmaVersion: 'latest',
-                jsDocParsingMode: 'all',
-            });
+                ecmaVersion: 2020,
+                ecmaFeatures: {
+                    jsx: true
+                },
+                range: true,
+                loc: true,
+                tokens: true,
+                comment: true,
+                errorOnUnknownASTType: false,
+                errorOnTypeScriptSyntacticAndSemanticIssues: false
+            };
+
+            const ast = parse(content, parserOptions);
+            if (!ast || typeof ast !== 'object') {
+                console.warn(`Warning: Invalid AST generated for file ${file}`);
+                return null;
+            }
             return ast;
         } catch (error) {
             if (error instanceof Error) {
