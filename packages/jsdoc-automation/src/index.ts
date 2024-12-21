@@ -89,4 +89,10 @@ async function main() {
 }
 }
 
-main();
+
+try {
+    main();
+} catch (error) {
+    console.error('An error occurred during the documentation generation process:', error);
+    process.exit(1);
+}
