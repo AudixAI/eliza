@@ -9,8 +9,18 @@ export const githubEnvSchema = z.object({
     GITHUB_API_TOKEN: z.string().min(1, "GitHub API token is required"),
 });
 
+/**
+ * Type definition for the GithubConfig based on the inferred type from githubEnvSchema.
+ */
 export type GithubConfig = z.infer<typeof githubEnvSchema>;
 
+/**
+ * Validates the GitHub configuration settings provided by the runtime.
+ * 
+ * @param {IAgentRuntime} runtime - The runtime instance containing the settings to validate.
+ * @returns {Promise<GithubConfig>} The validated GitHub configuration object.
+ * @throws {Error} If the GitHub configuration validation fails.
+ */
 export async function validateGithubConfig(
     runtime: IAgentRuntime
 ): Promise<GithubConfig> {
