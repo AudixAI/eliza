@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       pull_number:
-        description: 'Pull Request Number (optional - if not provided, scans entire directory)'
+        description: 'Pull Request Number (if not provided, scans root_directory) - PR must be merged to develop branch'
         required: false
         type: string
       root_directory:
-        description: 'Directory to scan (relative to repository root, e.g., packages/core/src)'
+        description: 'Only scans files in this directory (relative to repository root, e.g., packages/core/src)'
         required: true
         default: 'packages/core/src/test_resources'
         type: string
