@@ -10,14 +10,26 @@ export const twitterEnvSchema = z.object({
     TWITTER_USERNAME: z.string().min(1, "Twitter username is required"),
     TWITTER_PASSWORD: z.string().min(1, "Twitter password is required"),
     TWITTER_EMAIL: z.string().email("Valid Twitter email is required"),
+    TWITTER_COOKIES: z.string().optional(),
     MAX_TWEET_LENGTH: z
         .string()
         .pipe(z.coerce.number().min(0).int())
         .default(DEFAULT_MAX_TWEET_LENGTH.toString()),
 });
 
+/**
+ * Represents the inferred type of the Twitter configuration based on the Twitter environment schema.
+ */
 export type TwitterConfig = z.infer<typeof twitterEnvSchema>;
 
+/**
+ * Validates the Twitter configuration settings by retrieving values from the runtime or environment variables
+ * and parsing them using the Twitter environment schema.
+ * 
+ * @param {IAgentRuntime} runtime The Agent runtime object
+ * @returns {Promise<TwitterConfig>} The validated Twitter configuration settings
+ * @throws {Error} If the Twitter configuration validation fails
+ */
 export async function validateTwitterConfig(
     runtime: IAgentRuntime
 ): Promise<TwitterConfig> {
@@ -36,6 +48,9 @@ export async function validateTwitterConfig(
             TWITTER_EMAIL:
                 runtime.getSetting("TWITTER_EMAIL") ||
                 process.env.TWITTER_EMAIL,
+            TWITTER_COOKIES:
+                runtime.getSetting("TWITTER_COOKIES") ||
+                process.env.TWITTER_COOKIES,
             MAX_TWEET_LENGTH:
                 runtime.getSetting("MAX_TWEET_LENGTH") ||
                 process.env.MAX_TWEET_LENGTH ||
