@@ -55,6 +55,7 @@ jobs:
           pnpm install --no-frozen-lockfile
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
+          git remote add upstream git@github.com:ai16z/eliza.git
           git add pnpm-lock.yaml
           git commit -m "chore: update pnpm lockfile" || echo "No changes to commit"
           git push || echo "No changes to push"
