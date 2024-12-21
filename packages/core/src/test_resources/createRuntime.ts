@@ -17,6 +17,18 @@ import {
 } from "./constants.ts";
 import { User } from "./types.ts";
 
+/**
+ * Create a runtime environment for the agent.
+ * 
+ * @param {Object} options - The options object for creating the runtime.
+ * @param {Record<string, string> | NodeJS.ProcessEnv} [options.env] - The environment variables.
+ * @param {number} [options.conversationLength] - The length of conversation.
+ * @param {Evaluator[]} [options.evaluators=[]] - Array of evaluators.
+ * @param {Action[]} [options.actions=[]] - Array of actions.
+ * @param {Provider[]} [options.providers=[]] - Array of providers.
+ * @returns {Object} An object containing the user, session, and the created runtime.
+ */
+ */
 export async function createRuntime({
     env,
     conversationLength,
