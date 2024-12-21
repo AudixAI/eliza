@@ -15,7 +15,6 @@ import { generateTweetActions } from "@ai16z/eliza";
 import { IImageDescriptionService, ServiceType } from "@ai16z/eliza";
 import { buildConversationThread } from "./utils.ts";
 import { twitterMessageHandlerTemplate } from "./interactions.ts";
-import { DEFAULT_MAX_TWEET_LENGTH } from "./environment.ts";
 
 const twitterPostTemplate = `
 # Areas of Expertise
@@ -59,8 +58,19 @@ Tweet:
 
 # Respond with qualifying action tags only.` + postActionResponseFooter;
 
+const MAX_TWEET_LENGTH = 240;
+
 /**
  * Truncate text to fit within the Twitter character limit, ensuring it ends at a complete sentence.
+ */
+/**
+ * Truncates a given text to fit within the maximum tweet length, ensuring text ends on a complete sentence.
+ * If possible, truncates at the last period within the limit, otherwise truncates at the nearest whitespace.
+ * If no suitable truncation point is found, hard truncates and adds an ellipsis.
+ *
+ * @param {string} text - The text to truncate.
+ * @param {number} maxTweetLength - The maximum tweet length to truncate the text to.
+ * @returns {string} The truncated text.
  */
 function truncateToCompleteSentence(
     text: string,
@@ -174,7 +184,9 @@ export class TwitterPostClient {
         generateNewTweetLoop();
 
         // Add check for ENABLE_ACTION_PROCESSING before starting the loop
-        const enableActionProcessing = this.runtime.getSetting("ENABLE_ACTION_PROCESSING") ?? false;
+        const enableActionProcessing = parseBooleanFromText(
+            this.runtime.getSetting("ENABLE_ACTION_PROCESSING") ?? "true"
+        );
 
         if (enableActionProcessing) {
             processActionsLoop().catch((error) => {
@@ -279,7 +291,7 @@ export class TwitterPostClient {
             // Use the helper function to truncate to complete sentence
             const content = truncateToCompleteSentence(
                 cleanedContent,
-                parseInt(this.runtime.getSetting("MAX_TWEET_LENGTH")) || DEFAULT_MAX_TWEET_LENGTH
+                MAX_TWEET_LENGTH
             );
 
             const removeQuotes = (str: string) =>
