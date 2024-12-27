@@ -16,8 +16,18 @@ import {
     zeroUuid,
 } from "./constants.ts";
 import { User } from "./types.ts";
-//test
 
+/**
+ * Creates a runtime environment based on the provided configuration.
+ * 
+ * @param {Object} options - The options object containing configuration properties.
+ * @param {Record<string, string> | NodeJS.ProcessEnv} [options.env] - Environment variables or Node.js process environment.
+ * @param {number} [options.conversationLength] - The length of the conversation.
+ * @param {Evaluator[]} [options.evaluators] - Array of evaluators.
+ * @param {Action[]} [options.actions] - Array of actions.
+ * @param {Provider[]} [options.providers] - Array of providers.
+ * @returns {Object} - An object containing the created user, session, and runtime.
+ */
 export async function createRuntime({
     env,
     conversationLength,
