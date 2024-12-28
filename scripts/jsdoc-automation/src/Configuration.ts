@@ -8,7 +8,7 @@ import { Repository } from './types/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/**
+/****
  * Gets the repository root path by going up two levels from the current file
  * This assumes the code is in src/ directory of the package
  */
